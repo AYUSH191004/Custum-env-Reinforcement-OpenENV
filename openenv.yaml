@@ -1,0 +1,64 @@
+name: customer-support-escalation-env
+version: "1.0.0"
+description: >
+  A real-world customer support environment where AI agents learn to classify
+  incoming support tickets, draft contextually appropriate responses, and detect
+  churn-risk customers to trigger proactive retention workflows. Simulates the
+  full support queue lifecycle of a B2B SaaS company.
+
+author: openenv-hackathon
+tags: [customer-support, nlp, classification, churn-detection, real-world]
+
+observation_space:
+  type: object
+  fields:
+    - ticket_id
+    - subject
+    - body
+    - customer_name
+    - plan
+    - account_age_days
+    - mrr
+    - open_tickets_count
+    - last_login_days_ago
+    - previous_sentiment
+    - task_id
+    - step_number
+    - context
+
+action_space:
+  type: object
+  fields:
+    - ticket_type
+    - priority
+    - assigned_team
+    - reply_body
+    - reply_tone
+    - churn_risk_score
+    - retention_action
+
+reward_range: [-1.0, 1.0]
+
+tasks:
+  - id: task_1_ticket_classification
+    difficulty: easy
+    description: Classify ticket type and priority, assign to correct team
+    max_steps: 10
+
+  - id: task_2_response_drafting
+    difficulty: medium
+    description: Draft a contextually appropriate reply with correct tone
+    max_steps: 10
+
+  - id: task_3_churn_detection
+    difficulty: hard
+    description: Detect churn intent and select the correct retention action
+    max_steps: 8
+
+endpoints:
+  reset:    POST /reset
+  step:     POST /step
+  state:    GET  /state
+  tasks:    GET  /tasks
+  grader:   GET  /grader
+  baseline: GET  /baseline

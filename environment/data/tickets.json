@@ -1,0 +1,546 @@
+[
+  {
+    "ticket_id": "T001",
+    "task_id": "task_1_ticket_classification",
+    "subject": "App crashes every time I try to export data",
+    "body": "Hi team, whenever I click the Export to CSV button in the Reports section, the app freezes for about 10 seconds and then crashes completely. This has been happening since yesterday's update. I've tried on Chrome and Firefox with the same result. This is blocking our entire accounting workflow.",
+    "customer_name": "Priya Sharma",
+    "plan": "pro",
+    "account_age_days": 420,
+    "mrr": 299.0,
+    "open_tickets_count": 1,
+    "last_login_days_ago": 0,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "bug",
+      "priority": "high",
+      "assigned_team": "engineering"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T002",
+    "task_id": "task_1_ticket_classification",
+    "subject": "Wrong amount charged on March invoice",
+    "body": "Hello, I was charged $599 this month but my plan is the Starter plan at $49/month. I see no upgrades on my end. Please refund the difference immediately. This is very frustrating.",
+    "customer_name": "Carlos Mendez",
+    "plan": "starter",
+    "account_age_days": 180,
+    "mrr": 49.0,
+    "open_tickets_count": 1,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "ticket_type": "billing",
+      "priority": "high",
+      "assigned_team": "billing"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T003",
+    "task_id": "task_1_ticket_classification",
+    "subject": "Can you add dark mode to the dashboard?",
+    "body": "Hey! Love the product overall. One thing that would make a huge difference for me and my team is a dark mode option for the main dashboard. We work late nights and it strains our eyes. Would love to see this in an upcoming release!",
+    "customer_name": "Yuki Tanaka",
+    "plan": "starter",
+    "account_age_days": 90,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "ticket_type": "feature_request",
+      "priority": "low",
+      "assigned_team": "customer_success"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T004",
+    "task_id": "task_1_ticket_classification",
+    "subject": "We're evaluating whether to continue our subscription",
+    "body": "Hi, I'm the new operations manager here. We've been reviewing our software costs and I've been asked to evaluate whether this tool is providing enough ROI. Our team uses it but I'm not sure the value justifies the price. Could someone reach out to walk me through what we're getting?",
+    "customer_name": "Derek Walsh",
+    "plan": "pro",
+    "account_age_days": 730,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 14,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "churn_signal",
+      "priority": "critical",
+      "assigned_team": "customer_success"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T005",
+    "task_id": "task_1_ticket_classification",
+    "subject": "How do I add a second user to my account?",
+    "body": "Hi, I want to add my colleague to the account so we can both access the dashboard. I looked through settings but couldn't find where to do this. Can you help?",
+    "customer_name": "Aisha Okoye",
+    "plan": "starter",
+    "account_age_days": 30,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "general_inquiry",
+      "priority": "low",
+      "assigned_team": "support"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T006",
+    "task_id": "task_1_ticket_classification",
+    "subject": "URGENT: Production API is returning 500 errors",
+    "body": "Our production integration is completely broken. Every call to your API is returning HTTP 500. We have 3000 active users affected right now. This is a P0 incident on our side. Please escalate immediately.",
+    "customer_name": "Raj Patel",
+    "plan": "enterprise",
+    "account_age_days": 900,
+    "mrr": 2499.0,
+    "open_tickets_count": 2,
+    "last_login_days_ago": 0,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "ticket_type": "bug",
+      "priority": "critical",
+      "assigned_team": "engineering"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T007",
+    "task_id": "task_1_ticket_classification",
+    "subject": "I think I was double-charged last month",
+    "body": "Hi there. I noticed two charges from your company on my credit card statement in February — one on the 1st and one on the 15th. Is this normal or was I charged twice by mistake?",
+    "customer_name": "Sophie Bernard",
+    "plan": "starter",
+    "account_age_days": 200,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 5,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "billing",
+      "priority": "medium",
+      "assigned_team": "billing"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T008",
+    "task_id": "task_1_ticket_classification",
+    "subject": "Thinking about downgrading our plan",
+    "body": "Hello, we signed up for the Pro plan 6 months ago but we're honestly not using most of the features. Our team is small and we just need the basics. I'm seriously considering moving to the free tier or finding an alternative solution.",
+    "customer_name": "Marcus Lee",
+    "plan": "pro",
+    "account_age_days": 180,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 21,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "ticket_type": "churn_signal",
+      "priority": "high",
+      "assigned_team": "sales"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T009",
+    "task_id": "task_1_ticket_classification",
+    "subject": "Would love an integration with Notion",
+    "body": "Hi team! We use Notion for all our documentation and it would be amazing if we could sync our data directly into Notion pages. Is this on your roadmap? Would be a game changer for our workflow.",
+    "customer_name": "Emma Johansson",
+    "plan": "pro",
+    "account_age_days": 300,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "ticket_type": "feature_request",
+      "priority": "low",
+      "assigned_team": "customer_success"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T010",
+    "task_id": "task_1_ticket_classification",
+    "subject": "Where can I find my usage reports?",
+    "body": "Hello, I need to pull a usage report for our leadership meeting tomorrow. I can see the dashboard but I'm not sure where the reports section is. Is there documentation on this?",
+    "customer_name": "Tomoko Watanabe",
+    "plan": "starter",
+    "account_age_days": 45,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "general_inquiry",
+      "priority": "medium",
+      "assigned_team": "support"
+    },
+    "context": {}
+  },
+
+  {
+    "ticket_id": "T011",
+    "task_id": "task_2_response_drafting",
+    "subject": "App crashes every time I try to export data",
+    "body": "Hi team, whenever I click the Export to CSV button in the Reports section, the app freezes and crashes. This has been happening since yesterday's update. This is blocking our accounting workflow.",
+    "customer_name": "Priya Sharma",
+    "plan": "pro",
+    "account_age_days": 420,
+    "mrr": 299.0,
+    "open_tickets_count": 1,
+    "last_login_days_ago": 0,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "bug",
+      "priority": "high"
+    },
+    "context": {
+      "expected_tone": "apologetic",
+      "required_keywords": ["apologize", "export", "team", "fix", "update"],
+      "forbidden_phrases": ["not our fault", "user error", "works on our end"],
+      "ticket_type": "bug"
+    }
+  },
+  {
+    "ticket_id": "T012",
+    "task_id": "task_2_response_drafting",
+    "subject": "Wrong amount charged on March invoice",
+    "body": "Hello, I was charged $599 this month but my plan is the Starter plan at $49/month. Please refund the difference immediately.",
+    "customer_name": "Carlos Mendez",
+    "plan": "starter",
+    "account_age_days": 180,
+    "mrr": 49.0,
+    "open_tickets_count": 1,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "ticket_type": "billing",
+      "priority": "high"
+    },
+    "context": {
+      "expected_tone": "apologetic",
+      "required_keywords": ["refund", "billing", "review", "account", "resolve"],
+      "forbidden_phrases": ["your fault", "impossible", "never"],
+      "ticket_type": "billing"
+    }
+  },
+  {
+    "ticket_id": "T013",
+    "task_id": "task_2_response_drafting",
+    "subject": "Can you add dark mode to the dashboard?",
+    "body": "Love the product! A dark mode option would make a huge difference for my team. We work late nights and it strains our eyes.",
+    "customer_name": "Yuki Tanaka",
+    "plan": "starter",
+    "account_age_days": 90,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "ticket_type": "feature_request",
+      "priority": "low"
+    },
+    "context": {
+      "expected_tone": "friendly",
+      "required_keywords": ["thank", "feedback", "roadmap", "dark mode", "consider"],
+      "forbidden_phrases": ["never", "impossible", "don't support"],
+      "ticket_type": "feature_request"
+    }
+  },
+  {
+    "ticket_id": "T014",
+    "task_id": "task_2_response_drafting",
+    "subject": "URGENT: Production API is returning 500 errors",
+    "body": "Our production integration is completely broken. Every call to your API is returning HTTP 500. We have 3000 active users affected right now. Please escalate immediately.",
+    "customer_name": "Raj Patel",
+    "plan": "enterprise",
+    "account_age_days": 900,
+    "mrr": 2499.0,
+    "open_tickets_count": 2,
+    "last_login_days_ago": 0,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "ticket_type": "bug",
+      "priority": "critical"
+    },
+    "context": {
+      "expected_tone": "urgent",
+      "required_keywords": ["escalate", "engineering", "investigating", "priority", "update"],
+      "forbidden_phrases": ["cannot help", "not our issue", "wait"],
+      "ticket_type": "bug"
+    }
+  },
+  {
+    "ticket_id": "T015",
+    "task_id": "task_2_response_drafting",
+    "subject": "How do I add a second user to my account?",
+    "body": "Hi, I want to add my colleague to the account so we can both access the dashboard. I looked through settings but couldn't find where to do this.",
+    "customer_name": "Aisha Okoye",
+    "plan": "starter",
+    "account_age_days": 30,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "general_inquiry",
+      "priority": "low"
+    },
+    "context": {
+      "expected_tone": "friendly",
+      "required_keywords": ["settings", "invite", "team", "account", "steps"],
+      "forbidden_phrases": ["upgrade required", "not available", "impossible"],
+      "ticket_type": "general_inquiry"
+    }
+  },
+  {
+    "ticket_id": "T016",
+    "task_id": "task_2_response_drafting",
+    "subject": "Thinking about downgrading our plan",
+    "body": "Hello, we signed up for the Pro plan 6 months ago but we're not using most of the features. I'm seriously considering moving to the free tier or finding an alternative.",
+    "customer_name": "Marcus Lee",
+    "plan": "pro",
+    "account_age_days": 180,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 21,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "ticket_type": "churn_signal",
+      "priority": "high"
+    },
+    "context": {
+      "expected_tone": "friendly",
+      "required_keywords": ["understand", "value", "features", "call", "help"],
+      "forbidden_phrases": ["your loss", "cancel", "goodbye"],
+      "ticket_type": "churn_signal"
+    }
+  },
+  {
+    "ticket_id": "T017",
+    "task_id": "task_2_response_drafting",
+    "subject": "I think I was double-charged last month",
+    "body": "Hi there. I noticed two charges from your company on my credit card statement in February. Is this normal or was I charged twice by mistake?",
+    "customer_name": "Sophie Bernard",
+    "plan": "starter",
+    "account_age_days": 200,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 5,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "ticket_type": "billing",
+      "priority": "medium"
+    },
+    "context": {
+      "expected_tone": "apologetic",
+      "required_keywords": ["investigate", "charges", "statement", "billing team", "confirm"],
+      "forbidden_phrases": ["your bank", "not our problem", "impossible"],
+      "ticket_type": "billing"
+    }
+  },
+  {
+    "ticket_id": "T018",
+    "task_id": "task_2_response_drafting",
+    "subject": "Would love an integration with Notion",
+    "body": "Hi team! We use Notion for all our documentation and it would be amazing if we could sync our data directly into Notion pages. Is this on your roadmap?",
+    "customer_name": "Emma Johansson",
+    "plan": "pro",
+    "account_age_days": 300,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "ticket_type": "feature_request",
+      "priority": "low"
+    },
+    "context": {
+      "expected_tone": "friendly",
+      "required_keywords": ["thank", "Notion", "integration", "roadmap", "share"],
+      "forbidden_phrases": ["never", "not planned", "impossible"],
+      "ticket_type": "feature_request"
+    }
+  },
+
+  {
+    "ticket_id": "T021",
+    "task_id": "task_3_churn_detection",
+    "subject": "We're evaluating whether to continue our subscription",
+    "body": "Hi, I'm the new operations manager here. We've been reviewing our software costs and I've been asked to evaluate whether this tool is providing enough ROI. Our team uses it but I'm not sure the value justifies the price. Could someone reach out?",
+    "customer_name": "Derek Walsh",
+    "plan": "pro",
+    "account_age_days": 730,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 14,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "churn_risk_score": 0.82,
+      "risk_tier": "high"
+    },
+    "context": {
+      "churn_signals": ["ROI concern", "new decision-maker", "infrequent login", "cost review"],
+      "expected_retention_actions": ["schedule_call", "flag_account_manager", "offer_discount"]
+    }
+  },
+  {
+    "ticket_id": "T022",
+    "task_id": "task_3_churn_detection",
+    "subject": "Thinking about downgrading our plan",
+    "body": "Hello, we signed up for the Pro plan 6 months ago but we're honestly not using most of the features. Our team is small and we just need the basics. I'm seriously considering moving to the free tier or finding an alternative solution.",
+    "customer_name": "Marcus Lee",
+    "plan": "pro",
+    "account_age_days": 180,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 21,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "churn_risk_score": 0.91,
+      "risk_tier": "high"
+    },
+    "context": {
+      "churn_signals": ["explicit downgrade intent", "very long login gap", "negative sentiment", "feature underutilization"],
+      "expected_retention_actions": ["schedule_call", "offer_discount", "flag_account_manager"]
+    }
+  },
+  {
+    "ticket_id": "T023",
+    "task_id": "task_3_churn_detection",
+    "subject": "Can you add dark mode to the dashboard?",
+    "body": "Love the product! A dark mode option would make a huge difference for my team. We work late nights and it strains our eyes. Keep up the great work!",
+    "customer_name": "Yuki Tanaka",
+    "plan": "starter",
+    "account_age_days": 90,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "churn_risk_score": 0.08,
+      "risk_tier": "low"
+    },
+    "context": {
+      "churn_signals": [],
+      "expected_retention_actions": ["no_action", "send_feature_highlight"]
+    }
+  },
+  {
+    "ticket_id": "T024",
+    "task_id": "task_3_churn_detection",
+    "subject": "Haven't received the promised onboarding call",
+    "body": "Hi, when we signed up last month we were told we'd get an onboarding call within the first week. It's been 5 weeks and nobody has reached out. We're still trying to figure out how to use some of the advanced features on our own.",
+    "customer_name": "Fatima Al-Hassan",
+    "plan": "pro",
+    "account_age_days": 35,
+    "mrr": 299.0,
+    "open_tickets_count": 1,
+    "last_login_days_ago": 3,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "churn_risk_score": 0.68,
+      "risk_tier": "high"
+    },
+    "context": {
+      "churn_signals": ["broken promise", "onboarding failure", "negative sentiment", "new customer"],
+      "expected_retention_actions": ["schedule_call", "flag_account_manager", "offer_discount"]
+    }
+  },
+  {
+    "ticket_id": "T025",
+    "task_id": "task_3_churn_detection",
+    "subject": "Would love an integration with Notion",
+    "body": "Hi team! We use Notion for all our documentation and it would be amazing if we could sync our data directly into Notion pages. Is this on your roadmap? Would be a game changer!",
+    "customer_name": "Emma Johansson",
+    "plan": "pro",
+    "account_age_days": 300,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "churn_risk_score": 0.15,
+      "risk_tier": "low"
+    },
+    "context": {
+      "churn_signals": [],
+      "expected_retention_actions": ["no_action", "send_feature_highlight"]
+    }
+  },
+  {
+    "ticket_id": "T026",
+    "task_id": "task_3_churn_detection",
+    "subject": "Response time has been really slow lately",
+    "body": "We've noticed that dashboard load times have increased significantly over the past 2 weeks. Our team is getting frustrated. We pay for the Pro plan specifically for performance. If this doesn't improve we'll need to look at alternatives.",
+    "customer_name": "Liam O'Brien",
+    "plan": "pro",
+    "account_age_days": 450,
+    "mrr": 299.0,
+    "open_tickets_count": 2,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "churn_risk_score": 0.72,
+      "risk_tier": "high"
+    },
+    "context": {
+      "churn_signals": ["performance complaint", "implicit threat to leave", "negative sentiment", "multiple open tickets"],
+      "expected_retention_actions": ["schedule_call", "flag_account_manager", "offer_discount"]
+    }
+  },
+  {
+    "ticket_id": "T027",
+    "task_id": "task_3_churn_detection",
+    "subject": "How do I export my data?",
+    "body": "Hi, I want to export all our historical data from the platform. Could you point me to how to do this? We might need it for a report we're preparing.",
+    "customer_name": "Jin Park",
+    "plan": "starter",
+    "account_age_days": 120,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "churn_risk_score": 0.42,
+      "risk_tier": "medium"
+    },
+    "context": {
+      "churn_signals": ["data export request can precede leaving"],
+      "expected_retention_actions": ["send_feature_highlight", "schedule_call"]
+    }
+  },
+  {
+    "ticket_id": "T028",
+    "task_id": "task_3_churn_detection",
+    "subject": "Need to pause our subscription for 2 months",
+    "body": "Hi, we're going through a budget freeze and need to pause our subscription temporarily for 2 months. Is that something you can accommodate? We do want to come back after things settle down.",
+    "customer_name": "Ana Rodrigues",
+    "plan": "pro",
+    "account_age_days": 280,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 10,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "churn_risk_score": 0.58,
+      "risk_tier": "medium"
+    },
+    "context": {
+      "churn_signals": ["pause request", "budget freeze", "temporary intent"],
+      "expected_retention_actions": ["schedule_call", "send_feature_highlight"]
+    }
+  }
+]
