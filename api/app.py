@@ -203,12 +203,12 @@ def grader(task_id: str = Query(default="task_1_ticket_classification")):
 @app.get("/baseline", tags=["openenv"])
 def baseline():
     try:
-        from baseline.run_baseline import run_baseline
+        from baseline.Inference import run_baseline
 
         scores = run_baseline()
 
         return {
-            "baseline_model": "llama3-8b-8192",
+            "baseline_model": "Model",
             "scores": scores,
             "avg_score": round(sum(scores.values()) / len(scores), 3),
         }

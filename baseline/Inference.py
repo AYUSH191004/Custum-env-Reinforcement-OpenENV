@@ -11,6 +11,10 @@ import os
 import sys
 import json
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO)
@@ -21,15 +25,27 @@ from environment import CustomerSupportEnv, Action
 
 
 # ---------------------------------------------------------------------------
-# Groq Client
+# Environment Variables
+# ---------------------------------------------------------------------------
+
+API_BASE_URL = os.getenv("API_BASE_URL")
+MODEL = os.getenv("MODEL_NAME")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+assert API_BASE_URL is not None, "API_BASE_URL missing"
+assert MODEL is not None, "MODEL_NAME missing"
+assert HF_TOKEN is not None, "HF_TOKEN missing"
+
+
+# ---------------------------------------------------------------------------
+# OpenAI Client
 # ---------------------------------------------------------------------------
 
 client = OpenAI(
-    api_key=os.environ.get("GROQ_API_KEY"),
-    base_url="https://api.groq.com/openai/v1"
+    api_key=HF_TOKEN,
+    base_url=API_BASE_URL
 )
 
-MODEL = "llama-3.3-70b-versatile"
 temperature = 0.0
 
 
