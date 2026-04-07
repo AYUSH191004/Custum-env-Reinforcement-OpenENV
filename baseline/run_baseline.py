@@ -210,7 +210,7 @@ FORMATTERS = {
 # Run Single Task
 # ---------------------------------------------------------------------------
 
-def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
+def run_task(task_id: str, max_steps: int = 4, verbose: bool = False):
 
     env = CustomerSupportEnv(task_id=task_id)
     obs = env.reset()
