@@ -28,8 +28,8 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-MODEL = "llama3-8b-8192"
-temperature = 0.0
+MODEL = "llama-3.3-70b-versatile"  # fast + free
+temperature = 0.0  # deterministic output
 
 
 TASK_IDS = [
@@ -61,8 +61,7 @@ Guidelines:
 - Feature requests → feature_request
 
 Be accurate and conservative.
-Follow the rules precisely.
-"""
+ Follow the rules precisely."""""
 
 
 # ---------------------------------------------------------------------------
@@ -110,8 +109,6 @@ Return JSON:
   "assigned_team": "engineering" | "billing" | "customer_success" | "sales" | "support"
 }}
 """
-
-
 def format_task_2(obs: dict) -> str:
     return f"""TASK: Response Drafting
 
@@ -147,8 +144,6 @@ Return JSON:
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
 }}
 """
-
-
 def format_task_3(obs: dict) -> str:
     return f"""TASK: Churn Detection
 
@@ -194,37 +189,11 @@ Return JSON:
 }}
 """
 
-
 FORMATTERS = {
     "task_1_ticket_classification": format_task_1,
     "task_2_response_drafting": format_task_2,
     "task_3_churn_detection": format_task_3,
 }
-
-
-# ---------------------------------------------------------------------------
-# Tone Normalization (NEW - improves task 2)
-# ---------------------------------------------------------------------------
-
-def normalize_tone(tone):
-    if not tone:
-        return tone
-        
-    tone = tone.lower().strip()
-
-    if tone in ["professional", "business", "formal tone"]:
-        return "formal"
-
-    if tone in ["sorry", "apology", "apologize", "apologetic tone"]:
-        return "apologetic"
-
-    if tone in ["friendly tone", "casual", "helpful"]:
-        return "friendly"
-
-    if tone in ["critical", "important", "immediate"]:
-        return "urgent"
-
-    return tone
 
 
 # ---------------------------------------------------------------------------
@@ -268,22 +237,9 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False) -> float:
 
             try:
                 parsed = json.loads(raw)
-
-                # Normalize tone for task 2
-                if task_id == "task_2_response_drafting" and "reply_tone" in parsed:
-                    parsed["reply_tone"] = normalize_tone(parsed["reply_tone"])
-
             except Exception as e:
                 logger.info(f"JSON parse failed: {raw}")
-
-                # Safe fallback
-                if task_id == "task_2_response_drafting":
-                    parsed = {
-                        "reply_body": "Thank you for reaching out. Our team is reviewing your request and will respond shortly.",
-                        "reply_tone": "formal"
-                    }
-                else:
-                    parsed = {}
+                parsed = {}
 
             action = Action(**parsed)
 
@@ -322,6 +278,9 @@ def run_baseline(verbose: bool = False):
 
         score = run_task(task_id, verbose=verbose)
         scores[task_id] = score
+
+    print("Action:", task_id)
+    print("Reward:", scores[task_id])
 
     return scores
 
