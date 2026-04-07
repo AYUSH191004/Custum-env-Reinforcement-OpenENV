@@ -110,7 +110,6 @@ Return JSON:
 }}
 """
 
-
 def format_task_2(obs: dict) -> str:
     return f"""TASK: Response Drafting
 
@@ -122,50 +121,19 @@ Guidelines:
 - Negative sentiment → apologetic tone
 - Urgent issue → urgent tone
 - General support → friendly tone
-- Professional/business request → formal tone
-- Keep response concise (1–2 sentences, under 40 words)
-- Use professional customer support language
-- Avoid generic responses
-- Always choose tone from allowed list
+- Business request → formal tone
 
-Example 1:
+Example:
 
-Customer: angry about billing
+Customer: frustrated with product crashing
 
 Output:
 {{
-  "reply_body": "We're sorry for the inconvenience. Our billing team is reviewing this issue and will follow up shortly.",
+  "reply_body": "We're sorry for the inconvenience. Our team is investigating the issue and will update you shortly.",
   "reply_tone": "apologetic"
 }}
 
-Example 2:
-
-Customer: asking for feature help
-
-Output:
-{{
-  "reply_body": "Thanks for reaching out! We'd be happy to help you explore this feature.",
-  "reply_tone": "friendly"
-}}
-
-Example 3:
-
-Customer: frustrated with bugs and product crashing
-
-Output:
-{{
-  "reply_body": "We're sorry you're experiencing this issue. Our engineering team is investigating and will update you shortly.",
-  "reply_tone": "apologetic"
-}}
-
-Allowed reply_tone values:
-- formal
-- friendly
-- apologetic
-- urgent
-
-Return JSON only (no explanation, no markdown):
-
+Return JSON:
 {{
   "reply_body": "<text>",
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
