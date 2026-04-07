@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from openai import OpenAI
-from environment import CustomerSupportEnv, Action
+from OpenEnv import CustomerSupportEnv, Action
 
 
 # ---------------------------------------------------------------------------
@@ -228,6 +228,8 @@ FORMATTERS = {
 
 def run_task(task_id: str, max_steps: int = 4, verbose: bool = False):
 
+    logger.info(f"[STEP] Starting task: {task_id}")
+
     env = CustomerSupportEnv(task_id=task_id)
     obs = env.reset()
 
@@ -235,8 +237,6 @@ def run_task(task_id: str, max_steps: int = 4, verbose: bool = False):
     steps = 0
 
     formatter = FORMATTERS[task_id]
-
-    logger.info(f"Starting task: {task_id}")
 
     while not env.done and steps < max_steps:
 
@@ -317,15 +317,21 @@ def run_task(task_id: str, max_steps: int = 4, verbose: bool = False):
 
 def run_baseline(verbose: bool = False):
 
+    print("[START] Running OpenEnv Baseline")
+
     scores = {}
 
     for task_id in TASK_IDS:
+
+        print(f"[STEP] Running {task_id}")
 
         if verbose:
             print("\nRunning:", task_id)
 
         score = run_task(task_id, verbose=verbose)
         scores[task_id] = score
+
+    print("[END] Baseline completed")
 
     return scores
 
@@ -345,8 +351,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.task:
+        print("[START] Running Single Task")
         score = run_task(args.task, verbose=args.verbose)
         print({args.task: score})
+        print("[END] Single Task Completed")
     else:
         scores = run_baseline(verbose=args.verbose)
         print(scores)
