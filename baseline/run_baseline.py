@@ -230,6 +230,35 @@ def normalize_tone(tone):
     return tone
 
 
+def safe_action(task_id, parsed):
+
+    try:
+
+        if not isinstance(parsed, dict):
+            return Action()
+
+        # Task 2
+        if task_id == "task_2_response_drafting":
+            if "reply_body" in parsed and "reply_tone" in parsed:
+                return Action(**parsed)
+            return Action()
+
+        # Task 1
+        if task_id == "task_1_ticket_classification":
+            if "ticket_type" in parsed:
+                return Action(**parsed)
+            return Action()
+
+        # Task 3
+        if task_id == "task_3_churn_detection":
+            if "churn_risk_score" in parsed:
+                return Action(**parsed)
+            return Action()
+
+        return Action()
+
+    except Exception:
+        return Action()
 # ---------------------------------------------------------------------------
 # Run Single Task
 # ---------------------------------------------------------------------------
@@ -275,16 +304,18 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
 
                 parsed = json.loads(raw)
 
-                # Normalize tone (Task 2 only)
+                # Normalize tone
                 if task_id == "task_2_response_drafting":
                     if "reply_tone" in parsed:
                         parsed["reply_tone"] = normalize_tone(parsed["reply_tone"])
 
             except Exception as e:
+
                 logger.info(f"JSON parse failed: {raw}")
                 parsed = {}
 
-            action = Action(**parsed)
+            # SAFE ACTION (UPDATED)
+            action = safe_action(task_id, parsed)
 
             logger.info(f"Parsed Action: {action}")
 
