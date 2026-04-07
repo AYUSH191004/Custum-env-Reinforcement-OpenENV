@@ -42,16 +42,26 @@ TASK_IDS = [
 # ---------------------------------------------------------------------------
 # System prompt
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """SYSTEM_PROMPT = You are a strict JSON generator.
+SYSTEM_PROMPT = """
+You are an expert SaaS customer support AI.
+
+Your goal:
+Maximize reward by making accurate decisions.
 
 Rules:
 - Return ONLY valid JSON
-- No markdown, no explanation
 - Use EXACT allowed values
-- Do NOT invent new values
-- If unsure, choose closest valid option
+- No explanations
+- No markdown
 
-Invalid output will break the system. Follow the rules precisely."""""
+Guidelines:
+- Downgrade/cancel → churn_signal
+- Billing complaints → billing
+- Bugs/errors → bug
+- Feature requests → feature_request
+
+Be accurate and conservative.
+ Follow the rules precisely."""""
 
 
 # ---------------------------------------------------------------------------
@@ -70,7 +80,16 @@ Return JSON:
   "ticket_type": "bug" | "billing" | "feature_request" | "churn_signal" | "general_inquiry",
   "priority": "critical" | "high" | "medium" | "low",
   "assigned_team": "engineering" | "billing" | "customer_success" | "sales" | "support"
-}}"""
+}}
+Example:
+
+Customer: "We're thinking of cancelling"
+Output:
+{
+ "ticket_type": "churn_signal",
+ "priority": "critical",
+ "assigned_team": "customer_success"
+}"""
 
 
 def format_task_2(obs: dict) -> str:
@@ -84,7 +103,15 @@ Return JSON:
 {{
   "reply_body": "<text>",
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
-}}"""
+}}
+Example:
+Customer: angry
+
+Output:
+{
+ "reply_body": "We're sorry for the inconvenience...",
+ "reply_tone": "apologetic"
+}"""
 
 
 def format_task_3(obs: dict) -> str:
@@ -103,7 +130,15 @@ Return JSON:
     "flag_account_manager" |
     "send_feature_highlight" |
     "no_action"
-}}"""
+}}
+Example:
+Customer considering downgrade
+
+Output:
+{
+ "churn_risk_score": 0.85,
+ "retention_action": "schedule_call"
+}"""
 
 
 FORMATTERS = {
@@ -117,7 +152,7 @@ FORMATTERS = {
 # Run Single Task
 # ---------------------------------------------------------------------------
 
-def run_task(task_id: str, max_steps: int = 8, verbose: bool = False) -> float:
+def run_task(task_id: str, max_steps: int = 5, verbose: bool = False) -> float:
     env = CustomerSupportEnv(task_id=task_id)
     obs = env.reset()
 
