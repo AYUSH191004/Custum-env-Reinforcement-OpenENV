@@ -122,7 +122,11 @@ Guidelines:
 - Negative sentiment → apologetic tone
 - Urgent issue → urgent tone
 - General support → friendly tone
-- Professional request → formal tone
+- Professional/business request → formal tone
+- Keep response concise (1–2 sentences, under 40 words)
+- Use professional customer support language
+- Avoid generic responses
+- Always choose tone from allowed list
 
 Example 1:
 
@@ -144,7 +148,24 @@ Output:
   "reply_tone": "friendly"
 }}
 
-Return JSON:
+Example 3:
+
+Customer: frustrated with bugs and product crashing
+
+Output:
+{{
+  "reply_body": "We're sorry you're experiencing this issue. Our engineering team is investigating and will update you shortly.",
+  "reply_tone": "apologetic"
+}}
+
+Allowed reply_tone values:
+- formal
+- friendly
+- apologetic
+- urgent
+
+Return JSON only (no explanation, no markdown):
+
 {{
   "reply_body": "<text>",
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
