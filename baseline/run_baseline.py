@@ -235,30 +235,56 @@ def safe_action(task_id, parsed):
     try:
 
         if not isinstance(parsed, dict):
-            return Action()
+            return default_action(task_id)
 
         # Task 2
         if task_id == "task_2_response_drafting":
             if "reply_body" in parsed and "reply_tone" in parsed:
                 return Action(**parsed)
-            return Action()
+            return default_action(task_id)
 
         # Task 1
         if task_id == "task_1_ticket_classification":
             if "ticket_type" in parsed:
                 return Action(**parsed)
-            return Action()
+            return default_action(task_id)
 
         # Task 3
         if task_id == "task_3_churn_detection":
             if "churn_risk_score" in parsed:
                 return Action(**parsed)
-            return Action()
+            return default_action(task_id)
 
-        return Action()
+        return default_action(task_id)
 
     except Exception:
-        return Action()
+        return default_action(task_id)
+    
+def default_action(task_id):
+
+    # Task 1 safe default
+    if task_id == "task_1_ticket_classification":
+        return Action(
+            ticket_type="general_inquiry",
+            priority="medium",
+            assigned_team="support"
+        )
+
+    # Task 2 safe default
+    if task_id == "task_2_response_drafting":
+        return Action(
+            reply_body="Thank you for reaching out. Our team will review and respond shortly.",
+            reply_tone="formal"
+        )
+
+    # Task 3 safe default
+    if task_id == "task_3_churn_detection":
+        return Action(
+            churn_risk_score=0.3,
+            retention_action="no_action"
+        )
+
+    return Action()
 # ---------------------------------------------------------------------------
 # Run Single Task
 # ---------------------------------------------------------------------------
