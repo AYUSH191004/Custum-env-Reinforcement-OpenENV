@@ -109,7 +109,6 @@ Return JSON:
   "assigned_team": "engineering" | "billing" | "customer_success" | "sales" | "support"
 }}
 """
-
 def format_task_2(obs: dict) -> str:
     return f"""TASK: Response Drafting
 
@@ -118,12 +117,12 @@ Customer: {obs['customer_name']}
 Body: {obs['body']}
 
 Guidelines:
-- Negative sentiment → apologetic tone
-- Urgent issue → urgent tone
-- General support → friendly tone
-- Business request → formal tone
+- Negative sentiment → apologetic
+- Urgent issue → urgent
+- General support → friendly
+- Business request → formal
 
-Example 1:
+Example:
 
 Customer: frustrated with product crashing
 
@@ -133,15 +132,11 @@ Output:
   "reply_tone": "apologetic"
 }}
 
-Example 2:
-
-Customer: requesting account upgrade details
-
-Output:
-{{
-  "reply_body": "Thank you for your interest. Our team will share the account upgrade details shortly.",
-  "reply_tone": "formal"
-}}
+Tone Examples:
+- billing complaint → apologetic
+- feature question → friendly
+- account request → formal
+- service outage → urgent
 
 Return JSON:
 {{
