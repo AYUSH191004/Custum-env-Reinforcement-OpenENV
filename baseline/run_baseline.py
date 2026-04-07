@@ -29,7 +29,7 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-MODEL = "llama3-8b-8192"
+MODEL = "llama-3.3-70b-versatile"
 temperature = 0.0
 
 
