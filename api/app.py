@@ -3,7 +3,7 @@ FastAPI server exposing the CustomerSupportEnv via HTTP.
 All 6 OpenEnv-required endpoints are implemented here.
 
 Start with:
-    uvicorn API.app:app --host 0.0.0.0 --port 7860 --reload
+    uvicorn api.app:app --host 0.0.0.0 --port 7860 --reload
 """
 
 import os
@@ -103,7 +103,7 @@ def root():
 # ---------------------------------------------------------------------------
 # Reset
 # ---------------------------------------------------------------------------
-@app.post("/reset", tags=["openenv"])
+@app.get("/reset", tags=["openenv"])
 def reset(task_id: str = Query(default="task_1_ticket_classification")):
     env = get_env(task_id)
     obs = env.reset()
