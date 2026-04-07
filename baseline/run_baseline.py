@@ -28,7 +28,7 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-MODEL = "llama3-70b-8192"  # fast + free
+MODEL = "llama-3.3-70b-versatile"  # fast + free
 temperature = 0.0  # deterministic output
 
 
