@@ -21,15 +21,16 @@ from environment import CustomerSupportEnv, Action
 
 
 # ---------------------------------------------------------------------------
-# Groq Client (Free API)
+# Groq Client
 # ---------------------------------------------------------------------------
+
 client = OpenAI(
     api_key=os.environ.get("GROQ_API_KEY"),
     base_url="https://api.groq.com/openai/v1"
 )
 
-MODEL = "llama-3.3-70b-versatile"  # fast + free
-temperature = 0.0  # deterministic output
+MODEL = "llama3-8b-8192"
+temperature = 0.0
 
 
 TASK_IDS = [
@@ -42,6 +43,7 @@ TASK_IDS = [
 # ---------------------------------------------------------------------------
 # System prompt
 # ---------------------------------------------------------------------------
+
 SYSTEM_PROMPT = """
 You are an expert SaaS customer support AI.
 
@@ -61,7 +63,8 @@ Guidelines:
 - Feature requests → feature_request
 
 Be accurate and conservative.
- Follow the rules precisely."""""
+Follow the rules precisely.
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -109,6 +112,8 @@ Return JSON:
   "assigned_team": "engineering" | "billing" | "customer_success" | "sales" | "support"
 }}
 """
+
+
 def format_task_2(obs: dict) -> str:
     return f"""TASK: Response Drafting
 
@@ -144,6 +149,8 @@ Return JSON:
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
 }}
 """
+
+
 def format_task_3(obs: dict) -> str:
     return f"""TASK: Churn Detection
 
@@ -189,6 +196,7 @@ Return JSON:
 }}
 """
 
+
 FORMATTERS = {
     "task_1_ticket_classification": format_task_1,
     "task_2_response_drafting": format_task_2,
@@ -197,10 +205,37 @@ FORMATTERS = {
 
 
 # ---------------------------------------------------------------------------
+# Tone Normalization (Safe improvement)
+# ---------------------------------------------------------------------------
+
+def normalize_tone(tone):
+
+    if not tone:
+        return tone
+
+    tone = tone.lower().strip()
+
+    if tone in ["professional", "business", "formal tone"]:
+        return "formal"
+
+    if tone in ["sorry", "apology", "apologize", "apologetic tone"]:
+        return "apologetic"
+
+    if tone in ["friendly tone", "casual", "helpful"]:
+        return "friendly"
+
+    if tone in ["critical", "important", "immediate"]:
+        return "urgent"
+
+    return tone
+
+
+# ---------------------------------------------------------------------------
 # Run Single Task
 # ---------------------------------------------------------------------------
 
-def run_task(task_id: str, max_steps: int = 5, verbose: bool = False) -> float:
+def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
+
     env = CustomerSupportEnv(task_id=task_id)
     obs = env.reset()
 
@@ -216,6 +251,7 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False) -> float:
         prompt = formatter(obs.model_dump())
 
         try:
+
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
@@ -230,13 +266,20 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False) -> float:
 
             logger.info(f"RAW OUTPUT: {raw}")
 
-            # Remove markdown fences
+            # Remove markdown
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
                 raw = raw.replace("json", "").strip()
 
             try:
+
                 parsed = json.loads(raw)
+
+                # Normalize tone (Task 2 only)
+                if task_id == "task_2_response_drafting":
+                    if "reply_tone" in parsed:
+                        parsed["reply_tone"] = normalize_tone(parsed["reply_tone"])
+
             except Exception as e:
                 logger.info(f"JSON parse failed: {raw}")
                 parsed = {}
@@ -246,6 +289,7 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False) -> float:
             logger.info(f"Parsed Action: {action}")
 
         except Exception as e:
+
             logger.info(f"LLM Error: {e}")
             action = Action()
 
@@ -273,14 +317,12 @@ def run_baseline(verbose: bool = False):
     scores = {}
 
     for task_id in TASK_IDS:
+
         if verbose:
             print("\nRunning:", task_id)
 
         score = run_task(task_id, verbose=verbose)
         scores[task_id] = score
-
-    print("Action:", task_id)
-    print("Reward:", scores[task_id])
 
     return scores
 
