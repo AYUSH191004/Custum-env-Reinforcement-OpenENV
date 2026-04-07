@@ -174,6 +174,9 @@ def run_baseline(verbose: bool = False):
         score = run_task(task_id, verbose=verbose)
         scores[task_id] = score
 
+    print("Action:", task_id)
+    print("Reward:", scores[task_id])
+
     return scores
 
 
