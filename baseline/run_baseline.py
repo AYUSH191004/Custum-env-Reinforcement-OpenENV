@@ -123,7 +123,7 @@ Guidelines:
 - General support → friendly tone
 - Business request → formal tone
 
-Example:
+Example 1:
 
 Customer: frustrated with product crashing
 
@@ -133,13 +133,22 @@ Output:
   "reply_tone": "apologetic"
 }}
 
+Example 2:
+
+Customer: requesting account upgrade details
+
+Output:
+{{
+  "reply_body": "Thank you for your interest. Our team will share the account upgrade details shortly.",
+  "reply_tone": "formal"
+}}
+
 Return JSON:
 {{
   "reply_body": "<text>",
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
 }}
 """
-
 def format_task_3(obs: dict) -> str:
     return f"""TASK: Churn Detection
 
