@@ -10,7 +10,7 @@ Usage:
 import os
 import sys
 import json
-import logging 
+import logging
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +41,7 @@ TASK_IDS = [
 
 
 # ---------------------------------------------------------------------------
-# System prompt
+# System Prompt
 # ---------------------------------------------------------------------------
 
 SYSTEM_PROMPT = """
@@ -68,7 +68,7 @@ Follow the rules precisely.
 
 
 # ---------------------------------------------------------------------------
-# Task formatters
+# Task Formatters
 # ---------------------------------------------------------------------------
 
 def format_task_1(obs: dict) -> str:
@@ -88,6 +88,7 @@ Guidelines:
 Example 1:
 
 Customer: "We're thinking of cancelling"
+
 Output:
 {{
   "ticket_type": "churn_signal",
@@ -98,6 +99,7 @@ Output:
 Example 2:
 
 Customer: "I was charged twice"
+
 Output:
 {{
   "ticket_type": "billing",
@@ -205,87 +207,6 @@ FORMATTERS = {
 
 
 # ---------------------------------------------------------------------------
-# Tone Normalization (Safe improvement)
-# ---------------------------------------------------------------------------
-
-def normalize_tone(tone):
-
-    if not tone:
-        return tone
-
-    tone = tone.lower().strip()
-
-    if tone in ["professional", "business", "formal tone"]:
-        return "formal"
-
-    if tone in ["sorry", "apology", "apologize", "apologetic tone"]:
-        return "apologetic"
-
-    if tone in ["friendly tone", "casual", "helpful"]:
-        return "friendly"
-
-    if tone in ["critical", "important", "immediate"]:
-        return "urgent"
-
-    return tone
-
-
-def safe_action(task_id, parsed):
-
-    try:
-
-        if not isinstance(parsed, dict):
-            return default_action(task_id)
-
-        # Task 2
-        if task_id == "task_2_response_drafting":
-            if "reply_body" in parsed and "reply_tone" in parsed:
-                return Action(**parsed)
-            return default_action(task_id)
-
-        # Task 1
-        if task_id == "task_1_ticket_classification":
-            if "ticket_type" in parsed:
-                return Action(**parsed)
-            return default_action(task_id)
-
-        # Task 3
-        if task_id == "task_3_churn_detection":
-            if "churn_risk_score" in parsed:
-                return Action(**parsed)
-            return default_action(task_id)
-
-        return default_action(task_id)
-
-    except Exception:
-        return default_action(task_id)
-    
-def default_action(task_id):
-
-    # Task 1 safe default
-    if task_id == "task_1_ticket_classification":
-        return Action(
-            ticket_type="general_inquiry",
-            priority="medium",
-            assigned_team="support"
-        )
-
-    # Task 2 safe default
-    if task_id == "task_2_response_drafting":
-        return Action(
-            reply_body="Thank you for reaching out. Our team will review and respond shortly.",
-            reply_tone="formal"
-        )
-
-    # Task 3 safe default
-    if task_id == "task_3_churn_detection":
-        return Action(
-            churn_risk_score=0.3,
-            retention_action="no_action"
-        )
-
-    return Action()
-# ---------------------------------------------------------------------------
 # Run Single Task
 # ---------------------------------------------------------------------------
 
@@ -321,32 +242,41 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
 
             logger.info(f"RAW OUTPUT: {raw}")
 
-            # Remove markdown
+            # Remove markdown fences
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
                 raw = raw.replace("json", "").strip()
 
             try:
-
                 parsed = json.loads(raw)
 
-                # Normalize tone
+                # SAFE Tone Normalization (Task 2 only)
                 if task_id == "task_2_response_drafting":
-                    if "reply_tone" in parsed:
-                        parsed["reply_tone"] = normalize_tone(parsed["reply_tone"])
+                    if isinstance(parsed, dict) and "reply_tone" in parsed:
 
-            except Exception as e:
+                        tone = parsed["reply_tone"].lower().strip()
 
+                        if tone in ["professional", "business"]:
+                            parsed["reply_tone"] = "formal"
+
+                        elif tone in ["sorry", "apology", "apologize"]:
+                            parsed["reply_tone"] = "apologetic"
+
+                        elif tone in ["casual", "helpful"]:
+                            parsed["reply_tone"] = "friendly"
+
+                        elif tone in ["critical", "important"]:
+                            parsed["reply_tone"] = "urgent"
+
+            except Exception:
                 logger.info(f"JSON parse failed: {raw}")
                 parsed = {}
 
-            # SAFE ACTION (UPDATED)
-            action = safe_action(task_id, parsed)
+            action = Action(**parsed)
 
             logger.info(f"Parsed Action: {action}")
 
         except Exception as e:
-
             logger.info(f"LLM Error: {e}")
             action = Action()
 
