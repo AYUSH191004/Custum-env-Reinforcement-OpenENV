@@ -18,7 +18,7 @@ from fastapi.responses import JSONResponse
 # Make sure parent dir is on path when run as module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from environment import CustomerSupportEnv, Action
+from OpenEnv import CustomerSupportEnv, Action
 
 
 # ---------------------------------------------------------------------------
