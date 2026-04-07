@@ -75,21 +75,40 @@ Subject: {obs['subject']}
 Customer: {obs['customer_name']} (Plan: {obs['plan']}, MRR: ${obs['mrr']})
 Body: {obs['body']}
 
+Guidelines:
+- Cancellation or downgrade intent → churn_signal
+- Payment or invoice issues → billing
+- Errors or system failures → bug
+- Feature requests → feature_request
+- General questions → general_inquiry
+
+Example 1:
+
+Customer: "We're thinking of cancelling"
+Output:
+{{
+  "ticket_type": "churn_signal",
+  "priority": "critical",
+  "assigned_team": "customer_success"
+}}
+
+Example 2:
+
+Customer: "I was charged twice"
+Output:
+{{
+  "ticket_type": "billing",
+  "priority": "high",
+  "assigned_team": "billing"
+}}
+
 Return JSON:
 {{
   "ticket_type": "bug" | "billing" | "feature_request" | "churn_signal" | "general_inquiry",
   "priority": "critical" | "high" | "medium" | "low",
   "assigned_team": "engineering" | "billing" | "customer_success" | "sales" | "support"
 }}
-Example:
-
-Customer: "We're thinking of cancelling"
-Output:
-{
- "ticket_type": "churn_signal",
- "priority": "critical",
- "assigned_team": "customer_success"
-}"""
+"""
 
 
 def format_task_2(obs: dict) -> str:
@@ -99,20 +118,38 @@ Subject: {obs['subject']}
 Customer: {obs['customer_name']}
 Body: {obs['body']}
 
+Guidelines:
+- Negative sentiment → apologetic tone
+- Urgent issue → urgent tone
+- General support → friendly tone
+- Professional request → formal tone
+
+Example 1:
+
+Customer: angry about billing
+
+Output:
+{{
+  "reply_body": "We're sorry for the inconvenience. Our billing team is reviewing this issue and will follow up shortly.",
+  "reply_tone": "apologetic"
+}}
+
+Example 2:
+
+Customer: asking for feature help
+
+Output:
+{{
+  "reply_body": "Thanks for reaching out! We'd be happy to help you explore this feature.",
+  "reply_tone": "friendly"
+}}
+
 Return JSON:
 {{
   "reply_body": "<text>",
   "reply_tone": "formal" | "friendly" | "apologetic" | "urgent"
 }}
-Example:
-Customer: angry
-
-Output:
-{
- "reply_body": "We're sorry for the inconvenience...",
- "reply_tone": "apologetic"
-}"""
-
+"""
 
 def format_task_3(obs: dict) -> str:
     return f"""TASK: Churn Detection
@@ -120,6 +157,32 @@ def format_task_3(obs: dict) -> str:
 Subject: {obs['subject']}
 Customer: {obs['customer_name']}
 Body: {obs['body']}
+
+Guidelines:
+- Downgrade or cancellation intent → high churn risk
+- Negative sentiment → higher risk
+- High MRR customers → prioritize retention
+- Positive engagement → low churn risk
+
+Example 1:
+
+Customer: "We're considering downgrading"
+
+Output:
+{{
+  "churn_risk_score": 0.85,
+  "retention_action": "schedule_call"
+}}
+
+Example 2:
+
+Customer: "Just exploring features"
+
+Output:
+{{
+  "churn_risk_score": 0.2,
+  "retention_action": "no_action"
+}}
 
 Return JSON:
 {{
@@ -131,15 +194,7 @@ Return JSON:
     "send_feature_highlight" |
     "no_action"
 }}
-Example:
-Customer considering downgrade
-
-Output:
-{
- "churn_risk_score": 0.85,
- "retention_action": "schedule_call"
-}"""
-
+"""
 
 FORMATTERS = {
     "task_1_ticket_classification": format_task_1,
