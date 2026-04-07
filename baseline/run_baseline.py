@@ -10,8 +10,11 @@ Usage:
 import os
 import sys
 import json
+import logging 
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from openai import OpenAI
 from environment import CustomerSupportEnv, Action
@@ -25,7 +28,8 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-MODEL = "llama3-8b-8192"   # fast + free
+MODEL = "llama3-70b-8192"  # fast + free
+temperature = 0.0  # deterministic output
 
 
 TASK_IDS = [
@@ -38,10 +42,16 @@ TASK_IDS = [
 # ---------------------------------------------------------------------------
 # System prompt
 # ---------------------------------------------------------------------------
-SYSTEM_PROMPT = """You are a professional customer support AI agent.
-You will receive a support ticket and must respond with a valid JSON object.
-Return ONLY the raw JSON. No markdown, no code fences, no explanation.
-All string values must exactly match the allowed options listed in the task schema."""
+SYSTEM_PROMPT = """SYSTEM_PROMPT = You are a strict JSON generator.
+
+Rules:
+- Return ONLY valid JSON
+- No markdown, no explanation
+- Use EXACT allowed values
+- Do NOT invent new values
+- If unsure, choose closest valid option
+
+Invalid output will break the system. Follow the rules precisely."""""
 
 
 # ---------------------------------------------------------------------------
@@ -116,6 +126,8 @@ def run_task(task_id: str, max_steps: int = 8, verbose: bool = False) -> float:
 
     formatter = FORMATTERS[task_id]
 
+    logger.info(f"Starting task: {task_id}")
+
     while not env.done and steps < max_steps:
 
         prompt = formatter(obs.model_dump())
@@ -127,35 +139,45 @@ def run_task(task_id: str, max_steps: int = 8, verbose: bool = False) -> float:
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.1,
+                temperature=0,
                 max_tokens=600,
             )
 
             raw = response.choices[0].message.content.strip()
 
-            # remove markdown fences
+            logger.info(f"RAW OUTPUT: {raw}")
+
+            # Remove markdown fences
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
-                if raw.startswith("json"):
-                    raw = raw[4:]
+                raw = raw.replace("json", "").strip()
 
-            parsed = json.loads(raw)
+            try:
+                parsed = json.loads(raw)
+            except Exception as e:
+                logger.info(f"JSON parse failed: {raw}")
+                parsed = {}
+
             action = Action(**parsed)
 
+            logger.info(f"Parsed Action: {action}")
+
         except Exception as e:
-            if verbose:
-                print("Error:", e)
+            logger.info(f"LLM Error: {e}")
             action = Action()
 
         obs, reward, done, info = env.step(action)
 
+        logger.info(f"Reward: {reward.value}")
+        logger.info(f"Done: {done}")
+
         total += reward.value
         steps += 1
 
-        if verbose:
-            print(f"step {steps} reward={reward.value}")
-
     avg = round(total / max(steps, 1), 3)
+
+    logger.info(f"Task {task_id} finished with avg reward: {avg}")
+
     return avg
 
 
