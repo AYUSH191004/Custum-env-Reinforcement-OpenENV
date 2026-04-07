@@ -208,7 +208,7 @@ def baseline():
         scores = run_baseline()
 
         return {
-            "baseline_model": "gpt-4o-mini",
+            "baseline_model": "llama3-8b-8192",
             "scores": scores,
             "avg_score": round(sum(scores.values()) / len(scores), 3),
         }
