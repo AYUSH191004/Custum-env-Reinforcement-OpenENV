@@ -15,7 +15,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# Make sure parent dir is on path when run as module
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from OpenEnv import CustomerSupportEnv, Action
@@ -208,7 +208,7 @@ def baseline():
         scores = run_baseline()
 
         return {
-            "baseline_model": "Model",
+            "baseline_model": "llama-3.3-70b-versatile",
             "scores": scores,
             "avg_score": round(sum(scores.values()) / len(scores), 3),
         }
