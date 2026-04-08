@@ -9,8 +9,8 @@ import pytest
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from environment import CustomerSupportEnv, Observation, Action, Reward
-from environment.graders import (
+from OpenEnv import CustomerSupportEnv, Observation, Action, Reward
+from OpenEnv.graders import (
     grade_task_1, grade_task_2, grade_task_3,
     grade_task_4, apply_difficulty_bonus,
 )
