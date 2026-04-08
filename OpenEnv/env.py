@@ -18,9 +18,9 @@ TASK_IDS = [
 ]
 
 MAX_STEPS = {
-    "task_1_ticket_classification": 10,
-    "task_2_response_drafting":     10,
-    "task_3_churn_detection":       8,
+    "task_1_ticket_classification": 4,
+    "task_2_response_drafting":     4,
+    "task_3_churn_detection":       4,
 }
 
 DATA_PATH = Path(__file__).parent / "data" / "tickets.json"
