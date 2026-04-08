@@ -81,7 +81,7 @@ def root():
 
 
 # ── Endpoint 2: GET /reset ─────────────────────────────────────────────────
-@app.get("/reset", tags=["openenv"])
+@app.post("/reset", tags=["openenv"])
 def reset(task_id: str = Query(default="task_1_ticket_classification")):
     """Start a new episode. Returns the first Observation."""
     env = get_env(task_id)
