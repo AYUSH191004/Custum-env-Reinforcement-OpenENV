@@ -192,7 +192,7 @@ def grader(task_id: str = Query(default="task_1_ticket_classification")):
 def baseline():
     """Run baseline on all tasks."""
     try:
-        from baseline.Inference import run_baseline
+        from Inference import run_baseline
         scores = run_baseline()
         return {
             "baseline_model": "llama-3.3-70b-versatile",
