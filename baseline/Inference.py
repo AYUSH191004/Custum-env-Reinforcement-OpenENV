@@ -256,8 +256,18 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
             try:
                 parsed = json.loads(raw)
             except Exception:
-                logger.info(f"JSON parse failed: {raw}")
-                parsed = {}
+                try:
+                    start = raw.find("{")
+                    end = raw.rfind("}")
+
+                    if start != -1 and end != -1:
+                        parsed = json.loads(raw[start:end+1])
+                    else:
+                        parsed = {}
+
+                except Exception:
+                    logger.info(f"JSON parse failed: {raw}")
+                    parsed = {}
 
             action = Action(**parsed)
 
