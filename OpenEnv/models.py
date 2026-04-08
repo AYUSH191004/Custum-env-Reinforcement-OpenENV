@@ -11,12 +11,13 @@ class Observation(BaseModel):
     plan: str                          # free | starter | pro | enterprise
     account_age_days: int
     mrr: float                         # monthly recurring revenue in USD
-    open_tickets_count: int            # how many tickets this customer has open
-    last_login_days_ago: int           # days since last product login
+    open_tickets_count: int
+    last_login_days_ago: int
     previous_sentiment: str            # positive | neutral | negative
+    difficulty: str                    # easy | medium | hard  [Improvement 2]
     task_id: str
     step_number: int
-    context: Dict[str, Any] = {}      # task-specific grading metadata (hidden hints)
+    context: Dict[str, Any] = {}
 
 
 class Action(BaseModel):
@@ -42,6 +43,11 @@ class Action(BaseModel):
         "send_feature_highlight", "no_action"
     ]] = None
 
+    # Task 4: Escalation decision  [Improvement 1]
+    escalation_decision: Optional[Literal[
+        "auto_resolve", "escalate_to_human", "request_more_info"
+    ]] = None
+
     @field_validator("churn_risk_score", mode="before")
     @classmethod
     def round_churn_score(cls, v):
@@ -53,9 +59,9 @@ class Action(BaseModel):
 class Reward(BaseModel):
     """Feedback signal returned after every step."""
     value: float = Field(ge=-1.0, le=1.0)
-    breakdown: Dict[str, float] = {}   # component-level scores
-    feedback: str = ""                 # human-readable explanation
-    is_correct: bool = False           # did the agent get the core decision right?
+    breakdown: Dict[str, float] = {}
+    feedback: str = ""
+    is_correct: bool = False
 
     @field_validator("value", mode="before")
     @classmethod

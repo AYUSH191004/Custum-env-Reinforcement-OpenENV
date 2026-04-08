@@ -16,7 +16,8 @@
       "priority": "high",
       "assigned_team": "engineering"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "medium"
   },
   {
     "ticket_id": "T002",
@@ -35,7 +36,8 @@
       "priority": "high",
       "assigned_team": "billing"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T003",
@@ -54,7 +56,8 @@
       "priority": "low",
       "assigned_team": "customer_success"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T004",
@@ -73,7 +76,8 @@
       "priority": "critical",
       "assigned_team": "customer_success"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T005",
@@ -92,7 +96,8 @@
       "priority": "low",
       "assigned_team": "support"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T006",
@@ -111,13 +116,14 @@
       "priority": "critical",
       "assigned_team": "engineering"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T007",
     "task_id": "task_1_ticket_classification",
     "subject": "I think I was double-charged last month",
-    "body": "Hi there. I noticed two charges from your company on my credit card statement in February — one on the 1st and one on the 15th. Is this normal or was I charged twice by mistake?",
+    "body": "Hi there. I noticed two charges from your company on my credit card statement in February \u2014 one on the 1st and one on the 15th. Is this normal or was I charged twice by mistake?",
     "customer_name": "Sophie Bernard",
     "plan": "starter",
     "account_age_days": 200,
@@ -130,7 +136,8 @@
       "priority": "medium",
       "assigned_team": "billing"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "medium"
   },
   {
     "ticket_id": "T008",
@@ -149,7 +156,8 @@
       "priority": "high",
       "assigned_team": "sales"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T009",
@@ -168,7 +176,8 @@
       "priority": "low",
       "assigned_team": "customer_success"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T010",
@@ -187,9 +196,9 @@
       "priority": "medium",
       "assigned_team": "support"
     },
-    "context": {}
+    "context": {},
+    "difficulty": "easy"
   },
-
   {
     "ticket_id": "T011",
     "task_id": "task_2_response_drafting",
@@ -208,10 +217,21 @@
     },
     "context": {
       "expected_tone": "apologetic",
-      "required_keywords": ["apologize", "export", "team", "fix", "update"],
-      "forbidden_phrases": ["not our fault", "user error", "works on our end"],
+      "required_keywords": [
+        "apologize",
+        "export",
+        "team",
+        "fix",
+        "update"
+      ],
+      "forbidden_phrases": [
+        "not our fault",
+        "user error",
+        "works on our end"
+      ],
       "ticket_type": "bug"
-    }
+    },
+    "difficulty": "medium"
   },
   {
     "ticket_id": "T012",
@@ -231,10 +251,21 @@
     },
     "context": {
       "expected_tone": "apologetic",
-      "required_keywords": ["refund", "billing", "review", "account", "resolve"],
-      "forbidden_phrases": ["your fault", "impossible", "never"],
+      "required_keywords": [
+        "refund",
+        "billing",
+        "review",
+        "account",
+        "resolve"
+      ],
+      "forbidden_phrases": [
+        "your fault",
+        "impossible",
+        "never"
+      ],
       "ticket_type": "billing"
-    }
+    },
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T013",
@@ -254,10 +285,21 @@
     },
     "context": {
       "expected_tone": "friendly",
-      "required_keywords": ["thank", "feedback", "roadmap", "dark mode", "consider"],
-      "forbidden_phrases": ["never", "impossible", "don't support"],
+      "required_keywords": [
+        "thank",
+        "feedback",
+        "roadmap",
+        "dark mode",
+        "consider"
+      ],
+      "forbidden_phrases": [
+        "never",
+        "impossible",
+        "don't support"
+      ],
       "ticket_type": "feature_request"
-    }
+    },
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T014",
@@ -277,10 +319,21 @@
     },
     "context": {
       "expected_tone": "urgent",
-      "required_keywords": ["escalate", "engineering", "investigating", "priority", "update"],
-      "forbidden_phrases": ["cannot help", "not our issue", "wait"],
+      "required_keywords": [
+        "escalate",
+        "engineering",
+        "investigating",
+        "priority",
+        "update"
+      ],
+      "forbidden_phrases": [
+        "cannot help",
+        "not our issue",
+        "wait"
+      ],
       "ticket_type": "bug"
-    }
+    },
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T015",
@@ -300,10 +353,21 @@
     },
     "context": {
       "expected_tone": "friendly",
-      "required_keywords": ["settings", "invite", "team", "account", "steps"],
-      "forbidden_phrases": ["upgrade required", "not available", "impossible"],
+      "required_keywords": [
+        "settings",
+        "invite",
+        "team",
+        "account",
+        "steps"
+      ],
+      "forbidden_phrases": [
+        "upgrade required",
+        "not available",
+        "impossible"
+      ],
       "ticket_type": "general_inquiry"
-    }
+    },
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T016",
@@ -323,10 +387,21 @@
     },
     "context": {
       "expected_tone": "friendly",
-      "required_keywords": ["understand", "value", "features", "call", "help"],
-      "forbidden_phrases": ["your loss", "cancel", "goodbye"],
+      "required_keywords": [
+        "understand",
+        "value",
+        "features",
+        "call",
+        "help"
+      ],
+      "forbidden_phrases": [
+        "your loss",
+        "cancel",
+        "goodbye"
+      ],
       "ticket_type": "churn_signal"
-    }
+    },
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T017",
@@ -346,10 +421,21 @@
     },
     "context": {
       "expected_tone": "apologetic",
-      "required_keywords": ["investigate", "charges", "statement", "billing team", "confirm"],
-      "forbidden_phrases": ["your bank", "not our problem", "impossible"],
+      "required_keywords": [
+        "investigate",
+        "charges",
+        "statement",
+        "billing team",
+        "confirm"
+      ],
+      "forbidden_phrases": [
+        "your bank",
+        "not our problem",
+        "impossible"
+      ],
       "ticket_type": "billing"
-    }
+    },
+    "difficulty": "medium"
   },
   {
     "ticket_id": "T018",
@@ -369,12 +455,22 @@
     },
     "context": {
       "expected_tone": "friendly",
-      "required_keywords": ["thank", "Notion", "integration", "roadmap", "share"],
-      "forbidden_phrases": ["never", "not planned", "impossible"],
+      "required_keywords": [
+        "thank",
+        "Notion",
+        "integration",
+        "roadmap",
+        "share"
+      ],
+      "forbidden_phrases": [
+        "never",
+        "not planned",
+        "impossible"
+      ],
       "ticket_type": "feature_request"
-    }
+    },
+    "difficulty": "easy"
   },
-
   {
     "ticket_id": "T021",
     "task_id": "task_3_churn_detection",
@@ -392,9 +488,19 @@
       "risk_tier": "high"
     },
     "context": {
-      "churn_signals": ["ROI concern", "new decision-maker", "infrequent login", "cost review"],
-      "expected_retention_actions": ["schedule_call", "flag_account_manager", "offer_discount"]
-    }
+      "churn_signals": [
+        "ROI concern",
+        "new decision-maker",
+        "infrequent login",
+        "cost review"
+      ],
+      "expected_retention_actions": [
+        "schedule_call",
+        "flag_account_manager",
+        "offer_discount"
+      ]
+    },
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T022",
@@ -413,9 +519,19 @@
       "risk_tier": "high"
     },
     "context": {
-      "churn_signals": ["explicit downgrade intent", "very long login gap", "negative sentiment", "feature underutilization"],
-      "expected_retention_actions": ["schedule_call", "offer_discount", "flag_account_manager"]
-    }
+      "churn_signals": [
+        "explicit downgrade intent",
+        "very long login gap",
+        "negative sentiment",
+        "feature underutilization"
+      ],
+      "expected_retention_actions": [
+        "schedule_call",
+        "offer_discount",
+        "flag_account_manager"
+      ]
+    },
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T023",
@@ -435,8 +551,12 @@
     },
     "context": {
       "churn_signals": [],
-      "expected_retention_actions": ["no_action", "send_feature_highlight"]
-    }
+      "expected_retention_actions": [
+        "no_action",
+        "send_feature_highlight"
+      ]
+    },
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T024",
@@ -455,9 +575,19 @@
       "risk_tier": "high"
     },
     "context": {
-      "churn_signals": ["broken promise", "onboarding failure", "negative sentiment", "new customer"],
-      "expected_retention_actions": ["schedule_call", "flag_account_manager", "offer_discount"]
-    }
+      "churn_signals": [
+        "broken promise",
+        "onboarding failure",
+        "negative sentiment",
+        "new customer"
+      ],
+      "expected_retention_actions": [
+        "schedule_call",
+        "flag_account_manager",
+        "offer_discount"
+      ]
+    },
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T025",
@@ -477,8 +607,12 @@
     },
     "context": {
       "churn_signals": [],
-      "expected_retention_actions": ["no_action", "send_feature_highlight"]
-    }
+      "expected_retention_actions": [
+        "no_action",
+        "send_feature_highlight"
+      ]
+    },
+    "difficulty": "easy"
   },
   {
     "ticket_id": "T026",
@@ -497,9 +631,19 @@
       "risk_tier": "high"
     },
     "context": {
-      "churn_signals": ["performance complaint", "implicit threat to leave", "negative sentiment", "multiple open tickets"],
-      "expected_retention_actions": ["schedule_call", "flag_account_manager", "offer_discount"]
-    }
+      "churn_signals": [
+        "performance complaint",
+        "implicit threat to leave",
+        "negative sentiment",
+        "multiple open tickets"
+      ],
+      "expected_retention_actions": [
+        "schedule_call",
+        "flag_account_manager",
+        "offer_discount"
+      ]
+    },
+    "difficulty": "hard"
   },
   {
     "ticket_id": "T027",
@@ -518,9 +662,15 @@
       "risk_tier": "medium"
     },
     "context": {
-      "churn_signals": ["data export request can precede leaving"],
-      "expected_retention_actions": ["send_feature_highlight", "schedule_call"]
-    }
+      "churn_signals": [
+        "data export request can precede leaving"
+      ],
+      "expected_retention_actions": [
+        "send_feature_highlight",
+        "schedule_call"
+      ]
+    },
+    "difficulty": "medium"
   },
   {
     "ticket_id": "T028",
@@ -539,8 +689,195 @@
       "risk_tier": "medium"
     },
     "context": {
-      "churn_signals": ["pause request", "budget freeze", "temporary intent"],
-      "expected_retention_actions": ["schedule_call", "send_feature_highlight"]
+      "churn_signals": [
+        "pause request",
+        "budget freeze",
+        "temporary intent"
+      ],
+      "expected_retention_actions": [
+        "schedule_call",
+        "send_feature_highlight"
+      ]
+    },
+    "difficulty": "medium"
+  },
+  {
+    "ticket_id": "T031",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "easy",
+    "subject": "URGENT: Production API down for 2 hours",
+    "body": "Our entire platform is down. 5000 users can't access the service. We need this fixed NOW.",
+    "customer_name": "Raj Patel",
+    "plan": "enterprise",
+    "account_age_days": 900,
+    "mrr": 2499.0,
+    "open_tickets_count": 3,
+    "last_login_days_ago": 0,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "escalation_decision": "escalate_to_human",
+      "priority": "critical",
+      "ticket_type": "bug"
+    },
+    "context": {
+      "churn_signals": [
+        "production outage",
+        "enterprise customer",
+        "high MRR"
+      ]
     }
+  },
+  {
+    "ticket_id": "T032",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "easy",
+    "subject": "How do I reset my password?",
+    "body": "Hi, I forgot my password and can't log in. Can you help?",
+    "customer_name": "Aisha Okoye",
+    "plan": "free",
+    "account_age_days": 15,
+    "mrr": 0.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 7,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "escalation_decision": "auto_resolve",
+      "priority": "low",
+      "ticket_type": "general_inquiry"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T033",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "medium",
+    "subject": "I think I was double charged but not sure",
+    "body": "I noticed two charges last month but one might be from a trial. Can someone check my billing history? Not urgent but want clarity.",
+    "customer_name": "Sophie Bernard",
+    "plan": "starter",
+    "account_age_days": 200,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 5,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "escalation_decision": "request_more_info",
+      "priority": "medium",
+      "ticket_type": "billing"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T034",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "medium",
+    "subject": "We're evaluating whether to continue our subscription",
+    "body": "Hi, I'm reviewing our tooling costs. We might cancel. Could someone walk us through ROI?",
+    "customer_name": "Derek Walsh",
+    "plan": "pro",
+    "account_age_days": 730,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 14,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "escalation_decision": "escalate_to_human",
+      "priority": "high",
+      "ticket_type": "churn_signal"
+    },
+    "context": {
+      "churn_signals": [
+        "ROI concern",
+        "cancellation intent",
+        "inactive account"
+      ]
+    }
+  },
+  {
+    "ticket_id": "T035",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "hard",
+    "subject": "App is slow sometimes but not always",
+    "body": "The dashboard loads slowly during peak hours but it's fine otherwise. Not blocking but slightly annoying. Let me know if you need logs.",
+    "customer_name": "Emma Johansson",
+    "plan": "pro",
+    "account_age_days": 300,
+    "mrr": 299.0,
+    "open_tickets_count": 1,
+    "last_login_days_ago": 2,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "escalation_decision": "request_more_info",
+      "priority": "low",
+      "ticket_type": "bug"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T036",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "hard",
+    "subject": "New team member can't access advanced features",
+    "body": "We added a new user last week. She has the right plan but can't see the analytics tab. Might be a permissions issue or a bug. She needs access by Friday for a client presentation.",
+    "customer_name": "Liam O'Brien",
+    "plan": "pro",
+    "account_age_days": 450,
+    "mrr": 299.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "neutral",
+    "ground_truth": {
+      "escalation_decision": "request_more_info",
+      "priority": "high",
+      "ticket_type": "bug"
+    },
+    "context": {}
+  },
+  {
+    "ticket_id": "T037",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "hard",
+    "subject": "Thinking of switching to a competitor",
+    "body": "We've been trialing your product for 3 months. Honestly the features are good but your support response time has been too slow for us. We're looking at other options.",
+    "customer_name": "Marcus Lee",
+    "plan": "pro",
+    "account_age_days": 90,
+    "mrr": 299.0,
+    "open_tickets_count": 2,
+    "last_login_days_ago": 4,
+    "previous_sentiment": "negative",
+    "ground_truth": {
+      "escalation_decision": "escalate_to_human",
+      "priority": "critical",
+      "ticket_type": "churn_signal"
+    },
+    "context": {
+      "churn_signals": [
+        "competitor mention",
+        "support complaint",
+        "trial period",
+        "negative sentiment"
+      ]
+    }
+  },
+  {
+    "ticket_id": "T038",
+    "task_id": "task_4_escalation_decision",
+    "difficulty": "medium",
+    "subject": "Can you explain what the Pro plan includes?",
+    "body": "Hi, I'm on the starter plan and considering upgrading. What additional features do I get with Pro? And is there a trial period?",
+    "customer_name": "Yuki Tanaka",
+    "plan": "starter",
+    "account_age_days": 60,
+    "mrr": 49.0,
+    "open_tickets_count": 0,
+    "last_login_days_ago": 1,
+    "previous_sentiment": "positive",
+    "ground_truth": {
+      "escalation_decision": "auto_resolve",
+      "priority": "low",
+      "ticket_type": "general_inquiry"
+    },
+    "context": {}
   }
 ]

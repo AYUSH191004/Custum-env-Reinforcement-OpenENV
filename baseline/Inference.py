@@ -1,10 +1,6 @@
 """
 Baseline inference script.
-Runs Groq LLM as an agent against all 3 tasks and returns reproducible scores.
-
-Usage:
-    python -m baseline.run_baseline
-    # or triggered via GET /baseline
+Runs Groq LLM as an agent against all 4 tasks and returns reproducible scores.
 """
 
 import os
@@ -21,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 from openai import OpenAI
-from OpenEnv import CustomerSupportEnv, Action
+from OpenEnv.env import CustomerSupportEnv, Action
 
 
 # ---------------------------------------------------------------------------
@@ -40,7 +36,7 @@ assert HF_TOKEN is not None, "HF_TOKEN missing"
 # ---------------------------------------------------------------------------
 # OpenAI Client
 # ---------------------------------------------------------------------------
-#---------------------------------------------------------------------------
+
 client = OpenAI(
     api_key=HF_TOKEN,
     base_url=API_BASE_URL
@@ -53,6 +49,7 @@ TASK_IDS = [
     "task_1_ticket_classification",
     "task_2_response_drafting",
     "task_3_churn_detection",
+    "task_4_escalation_decision",   # ✅ Added
 ]
 
 
@@ -60,24 +57,20 @@ TASK_IDS = [
 # System Prompt
 # ---------------------------------------------------------------------------
 
-SYSTEM_PROMPT = """
+SYSTEM_PROMPT =  """
 You are an expert SaaS customer support AI.
-
 Your goal:
 Maximize reward by making accurate decisions.
-
 Rules:
 - Return ONLY valid JSON
 - Use EXACT allowed values
 - No explanations
 - No markdown
-
 Guidelines:
 - Downgrade/cancel → churn_signal
 - Billing complaints → billing
 - Bugs/errors → bug
 - Feature requests → feature_request
-
 Be accurate and conservative.
 Follow the rules precisely.
 """
@@ -89,40 +82,31 @@ Follow the rules precisely.
 
 def format_task_1(obs: dict) -> str:
     return f"""TASK: Ticket Classification
-
 Subject: {obs['subject']}
 Customer: {obs['customer_name']} (Plan: {obs['plan']}, MRR: ${obs['mrr']})
 Body: {obs['body']}
-
 Guidelines:
 - Cancellation or downgrade intent → churn_signal
 - Payment or invoice issues → billing
 - Errors or system failures → bug
 - Feature requests → feature_request
 - General questions → general_inquiry
-
 Example 1:
-
 Customer: "We're thinking of cancelling"
-
 Output:
 {{
   "ticket_type": "churn_signal",
   "priority": "critical",
   "assigned_team": "customer_success"
 }}
-
 Example 2:
-
 Customer: "I was charged twice"
-
 Output:
 {{
   "ticket_type": "billing",
   "priority": "high",
   "assigned_team": "billing"
 }}
-
 Return JSON:
 {{
   "ticket_type": "bug" | "billing" | "feature_request" | "churn_signal" | "general_inquiry",
@@ -131,36 +115,28 @@ Return JSON:
 }}
 """
 
-
 def format_task_2(obs: dict) -> str:
     return f"""TASK: Response Drafting
-
 Subject: {obs['subject']}
 Customer: {obs['customer_name']}
 Body: {obs['body']}
-
 Guidelines:
 - Negative sentiment → apologetic
 - Urgent issue → urgent
 - General support → friendly
 - Business request → formal
-
 Example:
-
 Customer: frustrated with product crashing
-
 Output:
 {{
   "reply_body": "We're sorry for the inconvenience. Our team is investigating the issue and will update you shortly.",
   "reply_tone": "apologetic"
 }}
-
 Tone Examples:
 - billing complaint → apologetic
 - feature question → friendly
 - account request → formal
 - service outage → urgent
-
 Return JSON:
 {{
   "reply_body": "<text>",
@@ -169,39 +145,31 @@ Return JSON:
 """
 
 
+
 def format_task_3(obs: dict) -> str:
     return f"""TASK: Churn Detection
-
 Subject: {obs['subject']}
 Customer: {obs['customer_name']}
 Body: {obs['body']}
-
 Guidelines:
 - Downgrade or cancellation intent → high churn risk
 - Negative sentiment → higher risk
 - High MRR customers → prioritize retention
 - Positive engagement → low churn risk
-
 Example 1:
-
 Customer: "We're considering downgrading"
-
 Output:
 {{
   "churn_risk_score": 0.85,
   "retention_action": "schedule_call"
 }}
-
 Example 2:
-
 Customer: "Just exploring features"
-
 Output:
 {{
   "churn_risk_score": 0.2,
   "retention_action": "no_action"
 }}
-
 Return JSON:
 {{
   "churn_risk_score": <float 0.0-1.0>,
@@ -215,10 +183,33 @@ Return JSON:
 """
 
 
+def format_task_4(obs: dict) -> str:
+    return f"""TASK: Escalation Decision
+
+Subject: {obs['subject']}
+Customer: {obs['customer_name']}
+Body: {obs['body']}
+
+Decision Rules:
+- Critical bug / outage → escalate_to_human
+- Ambiguous issue → request_more_info
+- Simple request → auto_resolve
+
+Return JSON:
+{{
+  "escalation_decision":
+    "auto_resolve" |
+    "escalate_to_human" |
+    "request_more_info"
+}}
+"""
+
+
 FORMATTERS = {
     "task_1_ticket_classification": format_task_1,
     "task_2_response_drafting": format_task_2,
     "task_3_churn_detection": format_task_3,
+    "task_4_escalation_decision": format_task_4,  
 }
 
 
@@ -226,7 +217,7 @@ FORMATTERS = {
 # Run Single Task
 # ---------------------------------------------------------------------------
 
-def run_task(task_id: str, max_steps: int = 4, verbose: bool = False):
+def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
 
     logger.info(f"[STEP] Starting task: {task_id}")
 
@@ -258,32 +249,12 @@ def run_task(task_id: str, max_steps: int = 4, verbose: bool = False):
 
             logger.info(f"RAW OUTPUT: {raw}")
 
-            # Remove markdown fences
             if raw.startswith("```"):
                 raw = raw.split("```")[1]
                 raw = raw.replace("json", "").strip()
 
             try:
                 parsed = json.loads(raw)
-
-                # SAFE Tone Normalization (Task 2 only)
-                if task_id == "task_2_response_drafting":
-                    if isinstance(parsed, dict) and "reply_tone" in parsed:
-
-                        tone = parsed["reply_tone"].lower().strip()
-
-                        if tone in ["professional", "business"]:
-                            parsed["reply_tone"] = "formal"
-
-                        elif tone in ["sorry", "apology", "apologize"]:
-                            parsed["reply_tone"] = "apologetic"
-
-                        elif tone in ["casual", "helpful"]:
-                            parsed["reply_tone"] = "friendly"
-
-                        elif tone in ["critical", "important"]:
-                            parsed["reply_tone"] = "urgent"
-
             except Exception:
                 logger.info(f"JSON parse failed: {raw}")
                 parsed = {}
@@ -325,9 +296,6 @@ def run_baseline(verbose: bool = False):
 
         print(f"[STEP] Running {task_id}")
 
-        if verbose:
-            print("\nRunning:", task_id)
-
         score = run_task(task_id, verbose=verbose)
         scores[task_id] = score
 
@@ -351,10 +319,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.task:
-        print("[START] Running Single Task")
         score = run_task(args.task, verbose=args.verbose)
         print({args.task: score})
-        print("[END] Single Task Completed")
     else:
         scores = run_baseline(verbose=args.verbose)
         print(scores)

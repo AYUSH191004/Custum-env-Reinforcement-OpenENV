@@ -1,13 +1,14 @@
 name: customer-support-escalation-env
-version: "1.0.0"
+version: "1.1.0"
 description: >
   A real-world customer support environment where AI agents learn to classify
-  incoming support tickets, draft contextually appropriate responses, and detect
-  churn-risk customers to trigger proactive retention workflows. Simulates the
-  full support queue lifecycle of a B2B SaaS company.
+  support tickets, draft contextual replies, detect customer churn risk, and
+  decide the correct escalation path. Simulates the full support queue lifecycle
+  of a B2B SaaS company. Tickets are difficulty-tagged (easy/medium/hard) and
+  harder tickets yield bonus rewards on correct answers.
 
 author: openenv-hackathon
-tags: [customer-support, nlp, classification, churn-detection, real-world]
+tags: [customer-support, nlp, classification, churn-detection, escalation, real-world]
 
 observation_space:
   type: object
@@ -22,6 +23,7 @@ observation_space:
     - open_tickets_count
     - last_login_days_ago
     - previous_sentiment
+    - difficulty
     - task_id
     - step_number
     - context
@@ -36,24 +38,30 @@ action_space:
     - reply_tone
     - churn_risk_score
     - retention_action
+    - escalation_decision
 
 reward_range: [-1.0, 1.0]
 
 tasks:
   - id: task_1_ticket_classification
     difficulty: easy
-    description: Classify ticket type and priority, assign to correct team
-    max_steps: 10
+    description: Classify ticket type, priority, assign team
+    max_steps: 4
 
   - id: task_2_response_drafting
     difficulty: medium
-    description: Draft a contextually appropriate reply with correct tone
-    max_steps: 10
+    description: Draft contextually appropriate reply with correct tone
+    max_steps: 4
 
   - id: task_3_churn_detection
     difficulty: hard
-    description: Detect churn intent and select the correct retention action
-    max_steps: 8
+    description: Score churn risk and select correct retention action
+    max_steps: 4
+
+  - id: task_4_escalation_decision
+    difficulty: medium
+    description: Decide auto_resolve vs escalate_to_human vs request_more_info
+    max_steps: 4
 
 endpoints:
   reset:    POST /reset

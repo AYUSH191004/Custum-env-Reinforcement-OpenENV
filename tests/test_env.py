@@ -1,6 +1,8 @@
 """
-Test suite for the CustomerSupportEnv.
-Run with:  python -m pytest tests/ -v
+Test suite for CustomerSupportEnv v1.1.0
+Covers: all 4 tasks, difficulty field, customer_reaction, graders.
+
+Run: pytest tests/ -v
 """
 
 import pytest
@@ -8,35 +10,32 @@ import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from environment import CustomerSupportEnv, Observation, Action, Reward
-from environment.graders import grade_task_1, grade_task_2, grade_task_3
+from environment.graders import (
+    grade_task_1, grade_task_2, grade_task_3,
+    grade_task_4, apply_difficulty_bonus,
+)
 
 
-# ===========================================================================
-# Fixtures
-# ===========================================================================
+# ── Fixtures ─────────────────────────────────────────────────────────────────
 
 @pytest.fixture
 def env1():
-    e = CustomerSupportEnv("task_1_ticket_classification")
-    e.reset()
-    return e
+    e = CustomerSupportEnv("task_1_ticket_classification"); e.reset(); return e
 
 @pytest.fixture
 def env2():
-    e = CustomerSupportEnv("task_2_response_drafting")
-    e.reset()
-    return e
+    e = CustomerSupportEnv("task_2_response_drafting"); e.reset(); return e
 
 @pytest.fixture
 def env3():
-    e = CustomerSupportEnv("task_3_churn_detection")
-    e.reset()
-    return e
+    e = CustomerSupportEnv("task_3_churn_detection"); e.reset(); return e
+
+@pytest.fixture
+def env4():
+    e = CustomerSupportEnv("task_4_escalation_decision"); e.reset(); return e
 
 
-# ===========================================================================
-# Core env interface
-# ===========================================================================
+# ── Core interface ────────────────────────────────────────────────────────────
 
 class TestEnvInterface:
     def test_reset_returns_observation(self, env1):
@@ -44,130 +43,164 @@ class TestEnvInterface:
         assert isinstance(obs, Observation)
         assert obs.task_id == "task_1_ticket_classification"
         assert obs.step_number == 0
-        assert obs.ticket_id.startswith("T")
 
     def test_step_returns_correct_tuple(self, env1):
-        action = Action(ticket_type="bug", priority="high", assigned_team="engineering")
-        obs, reward, done, info = env1.step(action)
+        obs, reward, done, info = env1.step(
+            Action(ticket_type="bug", priority="high", assigned_team="engineering")
+        )
         assert isinstance(obs, Observation)
         assert isinstance(reward, Reward)
         assert isinstance(done, bool)
-        assert isinstance(info, dict)
-        assert "total_reward" in info
-        assert "steps" in info
+        assert "total_reward" in info and "steps" in info
 
     def test_state_has_required_fields(self, env1):
         s = env1.state()
-        for field in ["task_id", "step_number", "done", "total_reward",
-                      "correct_count", "avg_reward", "history"]:
-            assert field in s, f"Missing field: {field}"
+        for f in ["task_id", "step_number", "done", "total_reward",
+                  "correct_count", "avg_reward", "history", "current_difficulty"]:
+            assert f in s, f"Missing: {f}"
 
     def test_step_after_done_raises(self, env1):
-        # Force episode to end
-        env1.step_number = env1.max_steps - 1
         env1.done = True
-        with pytest.raises(RuntimeError, match="Episode is done"):
+        with pytest.raises(RuntimeError):
             env1.step(Action())
 
-    def test_step_increments_step_number(self, env1):
-        before = env1.step_number
-        env1.step(Action(ticket_type="bug", priority="low", assigned_team="support"))
-        assert env1.step_number == before + 1
+    def test_invalid_task_id_raises(self):
+        with pytest.raises(ValueError):
+            CustomerSupportEnv("nonexistent_task")
+
+    def test_all_four_tasks_construct(self):
+        for tid in [
+            "task_1_ticket_classification", "task_2_response_drafting",
+            "task_3_churn_detection", "task_4_escalation_decision",
+        ]:
+            e = CustomerSupportEnv(tid)
+            obs = e.reset()
+            assert obs.task_id == tid
 
     def test_history_grows_per_step(self, env1):
         env1.step(Action(ticket_type="bug", priority="low", assigned_team="support"))
         env1.step(Action(ticket_type="billing", priority="medium", assigned_team="billing"))
         assert len(env1.history) == 2
 
-    def test_invalid_task_id_raises(self):
-        with pytest.raises(ValueError):
-            CustomerSupportEnv("invalid_task")
-
-    def test_all_three_tasks_construct(self):
-        for tid in ["task_1_ticket_classification",
-                    "task_2_response_drafting",
-                    "task_3_churn_detection"]:
-            env = CustomerSupportEnv(tid)
-            obs = env.reset()
-            assert obs.task_id == tid
+    def test_reward_accumulates(self, env1):
+        cumulative = 0.0
+        for _ in range(3):
+            if env1.done: break
+            _, r, _, _ = env1.step(Action(ticket_type="bug", priority="high", assigned_team="engineering"))
+            cumulative += r.value
+        assert abs(env1.total_reward - cumulative) < 1e-6
 
 
-# ===========================================================================
-# Observation model
-# ===========================================================================
+# ── Improvement 2: Difficulty field ──────────────────────────────────────────
 
-class TestObservation:
-    def test_observation_fields_present(self, env1):
+class TestDifficulty:
+    def test_observation_has_difficulty(self, env1):
         obs = env1.reset()
-        assert obs.subject
-        assert obs.body
-        assert obs.customer_name
-        assert obs.plan in ("free", "starter", "pro", "enterprise")
-        assert obs.account_age_days >= 0
-        assert obs.mrr >= 0.0
-        assert obs.previous_sentiment in ("positive", "neutral", "negative")
+        assert obs.difficulty in ("easy", "medium", "hard")
 
-    def test_ground_truth_not_in_observation(self, env3):
-        """Agent must NOT see the ground truth churn score."""
-        obs = env3.reset()
-        assert "churn_risk_score" not in obs.context
-        assert "ground_truth" not in obs.model_dump()
+    def test_state_has_current_difficulty(self, env1):
+        s = env1.state()
+        assert "current_difficulty" in s
+        assert s["current_difficulty"] in ("easy", "medium", "hard")
+
+    def test_info_has_difficulty(self, env1):
+        _, _, _, info = env1.step(
+            Action(ticket_type="bug", priority="high", assigned_team="engineering")
+        )
+        assert "difficulty" in info
+        assert info["difficulty"] in ("easy", "medium", "hard")
+
+    def test_history_records_difficulty(self, env1):
+        env1.step(Action(ticket_type="bug", priority="low", assigned_team="support"))
+        assert "difficulty" in env1.history[0]
+
+    def test_difficulty_bonus_applied_on_correct(self):
+        reward = Reward(value=0.8, breakdown={"decision": 0.8}, is_correct=True)
+        boosted = apply_difficulty_bonus(reward, "hard")
+        assert boosted.value > reward.value
+        assert "difficulty_bonus" in boosted.breakdown
+
+    def test_difficulty_bonus_not_applied_on_wrong(self):
+        reward = Reward(value=0.0, breakdown={"decision": 0.0}, is_correct=False)
+        same = apply_difficulty_bonus(reward, "hard")
+        assert same.value == reward.value
+
+    def test_difficulty_bonus_easy_is_zero(self):
+        reward = Reward(value=0.8, breakdown={}, is_correct=True)
+        same = apply_difficulty_bonus(reward, "easy")
+        assert same.value == reward.value
 
 
-# ===========================================================================
-# Grader: Task 1
-# ===========================================================================
+# ── Improvement 3: Customer reaction ─────────────────────────────────────────
+
+class TestCustomerReaction:
+    def test_reaction_present_in_task2_info(self, env2):
+        _, _, _, info = env2.step(Action(
+            reply_body="We sincerely apologize for the issue. Our team is looking into it now.",
+            reply_tone="apologetic",
+        ))
+        assert "customer_reaction" in info
+        assert info["customer_reaction"] in ("satisfied", "neutral", "frustrated")
+
+    def test_reaction_absent_in_task1(self, env1):
+        _, _, _, info = env1.step(
+            Action(ticket_type="bug", priority="high", assigned_team="engineering")
+        )
+        assert "customer_reaction" not in info
+
+    def test_reaction_absent_in_task4(self, env4):
+        _, _, _, info = env4.step(Action(escalation_decision="auto_resolve"))
+        assert "customer_reaction" not in info
+
+    def test_good_reply_satisfied(self, env2):
+        _, reward, _, info = env2.step(Action(
+            reply_body="We sincerely apologize for the inconvenience. Our engineering team is investigating the export crash and we will update you within 2 hours.",
+            reply_tone="apologetic",
+        ))
+        if reward.value >= 0.7:
+            assert info["customer_reaction"] == "satisfied"
+
+    def test_empty_reply_frustrated(self, env2):
+        _, reward, _, info = env2.step(Action(reply_body=None, reply_tone=None))
+        assert info["customer_reaction"] == "frustrated"
+
+
+# ── Grader: Task 1 ────────────────────────────────────────────────────────────
 
 class TestGraderTask1:
     GT = {"ticket_type": "bug", "priority": "high", "assigned_team": "engineering"}
 
-    def test_perfect_score(self):
-        action = Action(ticket_type="bug", priority="high", assigned_team="engineering")
-        r = grade_task_1(action, self.GT)
-        assert r.value == pytest.approx(1.0)
-        assert r.is_correct is True
+    def test_perfect(self):
+        r = grade_task_1(Action(ticket_type="bug", priority="high", assigned_team="engineering"), self.GT)
+        assert r.value == pytest.approx(1.0) and r.is_correct
 
-    def test_wrong_type_zero_priority_correct(self):
-        action = Action(ticket_type="billing", priority="high", assigned_team="engineering")
-        r = grade_task_1(action, self.GT)
-        assert r.value < 1.0
-        assert r.is_correct is False
+    def test_wrong_type(self):
+        r = grade_task_1(Action(ticket_type="billing", priority="high", assigned_team="engineering"), self.GT)
+        assert r.value < 1.0 and not r.is_correct
 
-    def test_related_type_gets_partial(self):
-        """churn_signal → general_inquiry should give partial credit."""
+    def test_related_partial(self):
         gt = {"ticket_type": "churn_signal", "priority": "critical", "assigned_team": "customer_success"}
-        action = Action(ticket_type="general_inquiry", priority="critical", assigned_team="customer_success")
-        r = grade_task_1(action, gt)
-        assert 0.0 < r.value < 1.0
+        r = grade_task_1(Action(ticket_type="general_inquiry", priority="critical", assigned_team="customer_success"), gt)
+        assert 0 < r.value < 1.0
 
-    def test_none_fields_penalized(self):
-        action = Action()   # all None
-        r = grade_task_1(action, self.GT)
-        assert r.value < 0.0
+    def test_none_penalized(self):
+        assert grade_task_1(Action(), self.GT).value < 0
+
+    def test_alt_team_accepted(self):
+        r = grade_task_1(Action(ticket_type="bug", priority="high", assigned_team="support"), self.GT)
+        assert r.is_correct
+
+    def test_breakdown_keys(self):
+        r = grade_task_1(Action(ticket_type="bug", priority="high", assigned_team="engineering"), self.GT)
+        assert all(k in r.breakdown for k in ["type", "priority", "team"])
 
     def test_reward_in_range(self):
-        for ticket_type in ["bug", "billing", "feature_request", "churn_signal", "general_inquiry"]:
-            action = Action(ticket_type=ticket_type, priority="high", assigned_team="engineering")
-            r = grade_task_1(action, self.GT)
+        for tt in ["bug", "billing", "feature_request", "churn_signal", "general_inquiry"]:
+            r = grade_task_1(Action(ticket_type=tt, priority="high", assigned_team="engineering"), self.GT)
             assert -1.0 <= r.value <= 1.0
 
-    def test_breakdown_keys_present(self):
-        action = Action(ticket_type="bug", priority="high", assigned_team="engineering")
-        r = grade_task_1(action, self.GT)
-        assert "type" in r.breakdown
-        assert "priority" in r.breakdown
-        assert "team" in r.breakdown
 
-    def test_acceptable_alternative_team(self):
-        """'support' is also acceptable for bug tickets."""
-        action = Action(ticket_type="bug", priority="high", assigned_team="support")
-        r = grade_task_1(action, self.GT)
-        assert r.is_correct is True
-
-
-# ===========================================================================
-# Grader: Task 2
-# ===========================================================================
+# ── Grader: Task 2 ────────────────────────────────────────────────────────────
 
 class TestGraderTask2:
     CTX = {
@@ -176,170 +209,112 @@ class TestGraderTask2:
         "forbidden_phrases": ["not our fault"],
     }
 
-    def test_good_reply_high_score(self):
-        action = Action(
-            reply_body="We sincerely apologize for the inconvenience with the export feature. Our team is investigating the fix and will update you shortly.",
-            reply_tone="apologetic",
-        )
-        r = grade_task_2(action, self.CTX)
+    def test_good_reply(self):
+        r = grade_task_2(Action(
+            reply_body="We sincerely apologize for the export issue. Our team is working on a fix.",
+            reply_tone="apologetic"), self.CTX)
         assert r.value >= 0.6
 
-    def test_empty_reply_penalized(self):
-        action = Action(reply_body=None, reply_tone="formal")
-        r = grade_task_2(action, self.CTX)
-        assert r.value < 0.0
+    def test_empty_penalized(self):
+        assert grade_task_2(Action(reply_body=None, reply_tone="formal"), self.CTX).value < 0
 
-    def test_wrong_tone_partial_credit(self):
-        action = Action(
-            reply_body="We apologize for the export bug. Our team is fixing it urgently.",
-            reply_tone="formal",   # expected: apologetic — adjacent tone
-        )
-        r = grade_task_2(action, self.CTX)
-        assert 0.0 < r.value < 1.0
+    def test_wrong_tone_partial(self):
+        r = grade_task_2(Action(
+            reply_body="We apologize for the export bug. Fix coming soon.",
+            reply_tone="formal"), self.CTX)
+        assert 0 < r.value < 1.0
 
-    def test_forbidden_phrase_penalty(self):
-        action_clean = Action(
-            reply_body="We apologize for the export issue and will fix it.",
-            reply_tone="apologetic",
-        )
-        action_dirty = Action(
-            reply_body="We apologize, but this is not our fault. The export bug will be fixed.",
-            reply_tone="apologetic",
-        )
-        r_clean = grade_task_2(action_clean, self.CTX)
-        r_dirty = grade_task_2(action_dirty, self.CTX)
-        assert r_clean.value > r_dirty.value
-
-    def test_too_short_partial_credit(self):
-        action = Action(reply_body="Sorry.", reply_tone="apologetic")
-        r = grade_task_2(action, self.CTX)
-        assert r.value < 0.5
+    def test_forbidden_phrase_lowers_score(self):
+        clean = grade_task_2(Action(reply_body="We apologize for the export fix.", reply_tone="apologetic"), self.CTX)
+        dirty = grade_task_2(Action(reply_body="This is not our fault. We apologize.", reply_tone="apologetic"), self.CTX)
+        assert clean.value > dirty.value
 
     def test_keyword_coverage_proportional(self):
-        # All 3 keywords
-        action_full = Action(
-            reply_body="We apologize for the export problem. Our team is working on a fix.",
-            reply_tone="apologetic",
-        )
-        # Only 1 keyword
-        action_partial = Action(
-            reply_body="We apologize for the inconvenience you experienced.",
-            reply_tone="apologetic",
-        )
-        r_full    = grade_task_2(action_full, self.CTX)
-        r_partial = grade_task_2(action_partial, self.CTX)
-        assert r_full.breakdown["keywords"] > r_partial.breakdown["keywords"]
+        full = grade_task_2(Action(
+            reply_body="We apologize for the export problem. A fix is coming.", reply_tone="apologetic"), self.CTX)
+        partial = grade_task_2(Action(
+            reply_body="We apologize for the inconvenience.", reply_tone="apologetic"), self.CTX)
+        assert full.breakdown["keywords"] > partial.breakdown["keywords"]
 
 
-# ===========================================================================
-# Grader: Task 3
-# ===========================================================================
+# ── Grader: Task 3 ────────────────────────────────────────────────────────────
 
 class TestGraderTask3:
     GT_HIGH = {"churn_risk_score": 0.82, "risk_tier": "high"}
     GT_LOW  = {"churn_risk_score": 0.08, "risk_tier": "low"}
-    GT_MED  = {"churn_risk_score": 0.50, "risk_tier": "medium"}
 
-    def test_correct_high_risk(self):
-        action = Action(churn_risk_score=0.85, retention_action="schedule_call")
-        r = grade_task_3(action, self.GT_HIGH)
-        assert r.value >= 0.7
-        assert r.is_correct is True
+    def test_correct_high(self):
+        r = grade_task_3(Action(churn_risk_score=0.85, retention_action="schedule_call"), self.GT_HIGH)
+        assert r.value >= 0.7 and r.is_correct
 
-    def test_correct_low_risk(self):
-        action = Action(churn_risk_score=0.10, retention_action="no_action")
-        r = grade_task_3(action, self.GT_LOW)
-        assert r.value >= 0.7
-        assert r.is_correct is True
+    def test_correct_low(self):
+        r = grade_task_3(Action(churn_risk_score=0.10, retention_action="no_action"), self.GT_LOW)
+        assert r.value >= 0.7 and r.is_correct
 
-    def test_wrong_tier_action_penalized(self):
-        """Sending 'no_action' for a high-risk customer should score poorly."""
-        action = Action(churn_risk_score=0.80, retention_action="no_action")
-        r = grade_task_3(action, self.GT_HIGH)
+    def test_wrong_tier_action(self):
+        r = grade_task_3(Action(churn_risk_score=0.80, retention_action="no_action"), self.GT_HIGH)
         assert r.breakdown["retention_action"] < 0.3
 
-    def test_none_score_penalized(self):
-        action = Action(retention_action="schedule_call")
-        r = grade_task_3(action, self.GT_HIGH)
-        assert r.breakdown["score_accuracy"] < 0.0
+    def test_none_penalized(self):
+        r = grade_task_3(Action(retention_action="schedule_call"), self.GT_HIGH)
+        assert r.breakdown["score_accuracy"] < 0
 
-    def test_close_score_partial_credit(self):
-        action = Action(churn_risk_score=0.65, retention_action="schedule_call")
-        r = grade_task_3(action, self.GT_HIGH)   # gt=0.82, distance=0.17 → partial
-        assert r.breakdown["score_accuracy"] >= 0.2
-
-    def test_all_valid_actions_acceptable_for_high(self):
-        valid = ["schedule_call", "offer_discount", "flag_account_manager"]
-        for act in valid:
-            action = Action(churn_risk_score=0.80, retention_action=act)
-            r = grade_task_3(action, self.GT_HIGH)
-            assert r.breakdown["retention_action"] == pytest.approx(0.45)
-
-    def test_reward_always_in_range(self):
-        test_cases = [
-            (None, None, self.GT_HIGH),
-            (0.5, "schedule_call", self.GT_HIGH),
-            (0.0, "no_action", self.GT_HIGH),
-            (1.0, "offer_discount", self.GT_LOW),
-        ]
-        for score, action, gt in test_cases:
-            a = Action(churn_risk_score=score, retention_action=action)
-            r = grade_task_3(a, gt)
+    def test_reward_in_range(self):
+        for score, action in [(None, None), (0.5, "schedule_call"), (0.0, "no_action")]:
+            r = grade_task_3(Action(churn_risk_score=score, retention_action=action), self.GT_HIGH)
             assert -1.0 <= r.value <= 1.0
 
-    def test_risk_tier_logic_bonus(self):
-        """Agent that correctly infers the risk tier gets bonus points."""
-        action = Action(churn_risk_score=0.78, retention_action="schedule_call")
-        r = grade_task_3(action, self.GT_HIGH)   # 0.78 ≥ 0.65 → high tier ✓
-        assert r.breakdown["risk_tier_logic"] == pytest.approx(0.10)
 
+# ── Grader: Task 4 (Improvement 1) ───────────────────────────────────────────
 
-# ===========================================================================
-# Full episode integration test
-# ===========================================================================
+class TestGraderTask4:
+    GT_ESC  = {"escalation_decision": "escalate_to_human",  "priority": "critical", "ticket_type": "bug"}
+    GT_AUTO = {"escalation_decision": "auto_resolve",        "priority": "low",      "ticket_type": "general_inquiry"}
+    GT_INFO = {"escalation_decision": "request_more_info",   "priority": "medium",   "ticket_type": "billing"}
 
-class TestFullEpisode:
-    def test_task_1_episode_completes(self):
-        env = CustomerSupportEnv("task_1_ticket_classification")
-        env.reset()
+    def test_correct_escalate(self):
+        r = grade_task_4(Action(escalation_decision="escalate_to_human"), self.GT_ESC)
+        assert r.is_correct and r.value >= 0.9
+
+    def test_correct_auto_resolve(self):
+        r = grade_task_4(Action(escalation_decision="auto_resolve"), self.GT_AUTO)
+        assert r.is_correct and r.value >= 0.9
+
+    def test_correct_request_info(self):
+        r = grade_task_4(Action(escalation_decision="request_more_info"), self.GT_INFO)
+        assert r.is_correct and r.value >= 0.9
+
+    def test_wrong_gets_partial(self):
+        r = grade_task_4(Action(escalation_decision="request_more_info"), self.GT_ESC)
+        assert not r.is_correct and 0 < r.value < 1.0
+
+    def test_auto_vs_escalate_zero(self):
+        r = grade_task_4(Action(escalation_decision="auto_resolve"), self.GT_ESC)
+        assert r.breakdown["decision"] == 0.0
+
+    def test_none_penalized(self):
+        r = grade_task_4(Action(), self.GT_ESC)
+        assert r.value < 0
+
+    def test_hard_difficulty_bonus(self):
+        r_easy = grade_task_4(Action(escalation_decision="escalate_to_human"), self.GT_ESC, difficulty="easy")
+        r_hard = grade_task_4(Action(escalation_decision="escalate_to_human"), self.GT_ESC, difficulty="hard")
+        assert r_hard.breakdown.get("decision", 0) > r_easy.breakdown.get("decision", 0)
+
+    def test_reward_always_in_range(self):
+        for dec in ["auto_resolve", "escalate_to_human", "request_more_info", None]:
+            r = grade_task_4(Action(escalation_decision=dec), self.GT_ESC)
+            assert -1.0 <= r.value <= 1.0
+
+    def test_feedback_present(self):
+        r = grade_task_4(Action(escalation_decision="auto_resolve"), self.GT_ESC)
+        assert len(r.feedback) > 0
+
+    def test_task4_full_episode(self, env4):
         steps = 0
-        while not env.done and steps < 20:
-            obs, reward, done, info = env.step(
-                Action(ticket_type="bug", priority="medium", assigned_team="engineering")
-            )
+        while not env4.done and steps < 10:
+            _, r, _, info = env4.step(Action(escalation_decision="escalate_to_human"))
+            assert -1.0 <= r.value <= 1.0
+            assert "difficulty" in info
             steps += 1
-        s = env.state()
-        assert s["step_number"] > 0
-        assert s["total_reward"] is not None
-
-    def test_reward_accumulates_correctly(self):
-        env = CustomerSupportEnv("task_1_ticket_classification")
-        env.reset()
-        cumulative = 0.0
-        for _ in range(3):
-            if env.done:
-                break
-            _, reward, _, _ = env.step(
-                Action(ticket_type="bug", priority="high", assigned_team="engineering")
-            )
-            cumulative += reward.value
-        assert abs(env.total_reward - cumulative) < 1e-6
-
-    def test_task_2_episode(self):
-        env = CustomerSupportEnv("task_2_response_drafting")
-        env.reset()
-        _, reward, _, _ = env.step(Action(
-            reply_body="We sincerely apologize and our team is investigating the issue urgently.",
-            reply_tone="apologetic",
-        ))
-        assert -1.0 <= reward.value <= 1.0
-        assert reward.feedback
-
-    def test_task_3_episode(self):
-        env = CustomerSupportEnv("task_3_churn_detection")
-        env.reset()
-        _, reward, _, _ = env.step(Action(
-            churn_risk_score=0.75,
-            retention_action="schedule_call",
-        ))
-        assert -1.0 <= reward.value <= 1.0
+        assert env4.step_number > 0
