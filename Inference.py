@@ -3,6 +3,7 @@ Baseline inference script.
 Runs Groq LLM as an agent against all 4 tasks and returns reproducible scores.
 """
 
+
 import os
 import sys
 import json
@@ -17,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 from openai import OpenAI
 from OpenEnv.env import CustomerSupportEnv, Action
-
 
 # ---------------------------------------------------------------------------
 # Environment Variables
