@@ -9,7 +9,6 @@ import json
 import logging
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,31 +27,22 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL = os.getenv("MODEL_NAME")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-assert API_BASE_URL is not None, "API_BASE_URL missing"
-assert MODEL is not None, "MODEL_NAME missing"
-assert HF_TOKEN is not None, "HF_TOKEN missing"
+assert API_BASE_URL is not None
+assert MODEL is not None
+assert HF_TOKEN is not None
 
-
-# ---------------------------------------------------------------------------
-# OpenAI Client
-# ---------------------------------------------------------------------------
 
 client = OpenAI(
     api_key=HF_TOKEN,
     base_url=API_BASE_URL
 )
 
-temperature = 0.0
-
-
 TASK_IDS = [
     "task_1_ticket_classification",
     "task_2_response_drafting",
     "task_3_churn_detection",
-    "task_4_escalation_decision",   # ✅ Added
+    "task_4_escalation_decision",
 ]
-
-
 # ---------------------------------------------------------------------------
 # System Prompt
 # ---------------------------------------------------------------------------
@@ -75,9 +65,116 @@ Be accurate and conservative.
 Follow the rules precisely.
 """
 
+# ---------------------------------------------------------------------------
+# Tone Normalization
+# ---------------------------------------------------------------------------
+
+def normalize_tone(tone):
+
+    if not tone:
+        return None
+
+    tone = str(tone).lower().strip()
+
+    mapping = {
+        "professional": "formal",
+        "business": "formal",
+        "sorry": "apologetic",
+        "apology": "apologetic",
+        "empathetic": "apologetic",
+        "casual": "friendly",
+        "helpful": "friendly",
+        "critical": "urgent",
+        "important": "urgent",
+    }
+
+    if tone in ["formal","friendly","apologetic","urgent"]:
+        return tone
+
+    return mapping.get(tone, "friendly")
+
 
 # ---------------------------------------------------------------------------
-# Task Formatters
+# Robust JSON Extraction
+# ---------------------------------------------------------------------------
+
+def extract_json(raw):
+
+    if not raw:
+        return {}
+
+    raw = raw.strip()
+
+    if "```" in raw:
+        parts = raw.split("```")
+        for part in parts:
+            if "{" in part and "}" in part:
+                raw = part
+                break
+
+    try:
+        return json.loads(raw)
+    except:
+        pass
+
+    try:
+        start = raw.find("{")
+        end = raw.rfind("}")
+
+        if start != -1 and end != -1:
+            return json.loads(raw[start:end+1])
+    except:
+        pass
+
+    return {}
+
+
+# ---------------------------------------------------------------------------
+# Task-Specific Sanitization
+# ---------------------------------------------------------------------------
+
+def sanitize_action(parsed, task_id):
+
+    if not isinstance(parsed, dict):
+        return {}
+
+    if task_id == "task_1_ticket_classification":
+        return {
+            "ticket_type": parsed.get("ticket_type"),
+            "priority": parsed.get("priority"),
+            "assigned_team": parsed.get("assigned_team"),
+        }
+
+    if task_id == "task_2_response_drafting":
+        return {
+            "reply_body": parsed.get("reply_body"),
+            "reply_tone": normalize_tone(parsed.get("reply_tone")),
+        }
+
+    if task_id == "task_3_churn_detection":
+
+        score = parsed.get("churn_risk_score")
+
+        try:
+            score = float(score) if score is not None else None
+        except:
+            score = None
+
+        return {
+            "churn_risk_score": score,
+            "retention_action": parsed.get("retention_action"),
+        }
+
+    if task_id == "task_4_escalation_decision":
+        return {
+            "escalation_decision": parsed.get("escalation_decision"),
+        }
+
+    return parsed
+
+
+# ---------------------------------------------------------------------------
+# Task Formatters (unchanged)
 # ---------------------------------------------------------------------------
 
 def format_task_1(obs: dict) -> str:
@@ -182,19 +279,15 @@ Return JSON:
 }}
 """
 
-
 def format_task_4(obs: dict) -> str:
     return f"""TASK: Escalation Decision
-
 Subject: {obs['subject']}
 Customer: {obs['customer_name']}
 Body: {obs['body']}
-
 Decision Rules:
 - Critical bug / outage → escalate_to_human
 - Ambiguous issue → request_more_info
 - Simple request → auto_resolve
-
 Return JSON:
 {{
   "escalation_decision":
@@ -209,23 +302,22 @@ FORMATTERS = {
     "task_1_ticket_classification": format_task_1,
     "task_2_response_drafting": format_task_2,
     "task_3_churn_detection": format_task_3,
-    "task_4_escalation_decision": format_task_4,  
+    "task_4_escalation_decision": format_task_4,
 }
 
 
 # ---------------------------------------------------------------------------
-# Run Single Task
+# Run Task
 # ---------------------------------------------------------------------------
 
-def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
-
-    logger.info(f"[STEP] Starting task: {task_id}")
+def run_task(task_id, verbose=False):
 
     env = CustomerSupportEnv(task_id=task_id)
     obs = env.reset()
 
-    total = 0.0
+    total = 0
     steps = 0
+    max_steps = env.max_steps
 
     formatter = FORMATTERS[task_id]
 
@@ -238,40 +330,24 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
             response = client.chat.completions.create(
                 model=MODEL,
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
+                    {"role":"system","content":"Return JSON only"},
+                    {"role":"user","content":prompt},
                 ],
                 temperature=0,
-                max_tokens=600,
+                max_tokens=600
             )
 
-            raw = response.choices[0].message.content.strip()
+            raw = response.choices[0].message.content
 
-            logger.info(f"RAW OUTPUT: {raw}")
+            logger.info(f"RAW: {raw}")
 
-            if raw.startswith("```"):
-                raw = raw.split("```")[1]
-                raw = raw.replace("json", "").strip()
+            parsed = extract_json(raw)
+            parsed = sanitize_action(parsed, task_id)
 
             try:
-                parsed = json.loads(raw)
-            except Exception:
-                try:
-                    start = raw.find("{")
-                    end = raw.rfind("}")
-
-                    if start != -1 and end != -1:
-                        parsed = json.loads(raw[start:end+1])
-                    else:
-                        parsed = {}
-
-                except Exception:
-                    logger.info(f"JSON parse failed: {raw}")
-                    parsed = {}
-
-            action = Action(**parsed)
-
-            logger.info(f"Parsed Action: {action}")
+                action = Action(**parsed)
+            except:
+                action = Action()
 
         except Exception as e:
             logger.info(f"LLM Error: {e}")
@@ -279,58 +355,29 @@ def run_task(task_id: str, max_steps: int = 5, verbose: bool = False):
 
         obs, reward, done, info = env.step(action)
 
-        logger.info(f"Reward: {reward.value}")
-        logger.info(f"Done: {done}")
-
         total += reward.value
         steps += 1
 
-    avg = round(total / max(steps, 1), 3)
-
-    logger.info(f"Task {task_id} finished with avg reward: {avg}")
-
-    return avg
+    return round(total / max(steps,1),3)
 
 
 # ---------------------------------------------------------------------------
-# Run All Tasks
+# Baseline
 # ---------------------------------------------------------------------------
 
-def run_baseline(verbose: bool = False):
-
-    print("[START] Running OpenEnv Baseline")
+def run_baseline():
 
     scores = {}
 
-    for task_id in TASK_IDS:
-
-        print(f"[STEP] Running {task_id}")
-
-        score = run_task(task_id, verbose=verbose)
-        scores[task_id] = score
-
-    print("[END] Baseline completed")
+    for task in TASK_IDS:
+        scores[task] = run_task(task)
 
     return scores
 
 
 # ---------------------------------------------------------------------------
-# CLI Entry
+# CLI
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--verbose", "-v", action="store_true")
-    parser.add_argument("--task", "-t", default=None)
-
-    args = parser.parse_args()
-
-    if args.task:
-        score = run_task(args.task, verbose=args.verbose)
-        print({args.task: score})
-    else:
-        scores = run_baseline(verbose=args.verbose)
-        print(scores)
+    print(run_baseline())
