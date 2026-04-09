@@ -8,6 +8,7 @@ Start: uvicorn api.app:app --host 0.0.0.0 --port 7860 --reload
 import os
 import sys
 from contextlib import asynccontextmanager
+import uvicorn
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -204,3 +205,9 @@ def baseline():
         raise HTTPException(status_code=500, detail=f"Baseline import error: {e}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Baseline failed: {str(e)}")
+    
+def main():
+ uvicorn.run(app, host="0.0.0.0", port=7860)
+
+if __name__ == "__main__":
+    main()
