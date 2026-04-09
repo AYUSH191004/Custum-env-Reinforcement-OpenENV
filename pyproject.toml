@@ -16,8 +16,8 @@ dependencies = [
 ]
 
 [project.scripts]
-server = "server.app:app"
+server = "server.app:main"
 
 [tool.openenv]
-entry_point = "server.app:app"
+entry_point = "server.app:main"
 env_class = "env:CustomerSupportEnv"
