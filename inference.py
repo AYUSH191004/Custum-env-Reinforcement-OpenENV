@@ -24,7 +24,7 @@ from OpenEnv.env import CustomerSupportEnv, Action
 # ---------------------------------------------------------------------------
 
 API_BASE_URL = os.getenv("API_BASE_URL")
-MODEL = os.getenv("MODEL_NAME")
+MODEL = os.getenv("MODEL_NAME", "llama3-8b-8192")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 assert API_BASE_URL is not None
