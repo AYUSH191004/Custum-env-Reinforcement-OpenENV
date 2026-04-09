@@ -321,6 +321,8 @@ def run_task(task_id, verbose=False):
 
     formatter = FORMATTERS[task_id]
 
+    print(f"[START] task={task_id}", flush=True)
+
     while not env.done and steps < max_steps:
 
         prompt = formatter(obs.model_dump())
@@ -358,8 +360,19 @@ def run_task(task_id, verbose=False):
         total += reward.value
         steps += 1
 
-    return round(total / max(steps,1),3)
+    print(
+            f"[STEP] step={steps} reward={round(reward.value,3)}",
+            flush=True
+        )
+    
+    score = round(total / max(steps,1),3)
 
+    print(
+        f"[END] task={task_id} score={score} steps={steps}",
+        flush=True
+    )
+
+    return score
 
 # ---------------------------------------------------------------------------
 # Baseline
