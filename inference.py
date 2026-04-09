@@ -365,7 +365,9 @@ def run_task(task_id, verbose=False):
             flush=True
         )
     
-    score = round(total / max(steps,1),3)
+    score = total / max(steps,1)
+    score=(score+1)/2
+    score =max(0.001,min(0.999,round(score,3)))
 
     print(
         f"[END] task={task_id} score={score} steps={steps}",
